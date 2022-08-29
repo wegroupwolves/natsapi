@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "natsapi"
+version = "0.0.2"
+description = "A Python microservice framework that speaks nats.io with asyncapi spec generation capability"
+authors = ["WeGroup NV <it@wegroup.be>"]
+readme = "README.md"
+license = "MIT"
+homepage =  "https://github.com/wegroupwolves/natsapi"
+repository =  "https://github.com/wegroupwolves/natsapi"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^1.8.2"
+nats-py = {extras = ["nkeys"], version = "^2.1.0"}
+watchgod = "^0.8.2"
+
+[tool.poetry.dev-dependencies]
+pytest-cov = "^2.11.1"
+coverage = "5.5"
+black = "^22.3.0"
+flake9 = "^3.8.3"
+isort = "^5.8.0"
+bandit = "^1.7.0"
+pre-commit = "^2.12.1"
+piprot = "^0.9.11"
+safety = "^1.10.3"
+pytest-asyncio = "^0.17.2"
+vulture = "^2.3"
+
+[tool.poetry.plugins."pytest11"]
+natsapi = "natsapi.plugin"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+filterwarnings = "ignore::DeprecationWarning"
+
+[build-system]
+requires = ["setuptools>=58.0", "poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+lines_between_types = 2
+combine_as_imports = true
+line_length = 120
+multi_line_output = 3
+
+[tool.flake8]
+ignore = "F722,W503,E501,E741,W605,E203,C901,F541,E133"
+max-line-length = 120
+max-complexity = 25
+
+[tool.black]
+line-length = 120
+
+[tool.coverage.report]
+omit=["**/site-packages/**"]

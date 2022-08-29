@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+ nats:
+    image: nats:2-alpine
+    container_name: nats-server
+    ports:
+      - 4222:4222
+    command: -DV
