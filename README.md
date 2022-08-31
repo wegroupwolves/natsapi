@@ -190,7 +190,3 @@ When surfing to [localhost:8090](http://127.0.0.1:8090), the documentation shoul
 Plugins can be added and are found in `natsapi/plugin.py`.
 
 - [natsapi_mock](./natsapi/plugin.py): A handy mock fixture to intercept nats requests and to fake nats responses for any subject.
-
-## History
-
-Natsapi is the first opensource framework build by WeGroup. The project started as an intern assignment led by @sevaho and developed by @fversche and @mark-yousif.
