@@ -157,7 +157,7 @@ class NatsClient(object):
         return None
 
     async def _error_cb(self, e):
-        logging.error(f"NATS ERROR: {e}")
+        logging.exception(e)
 
     async def _closed_cb(self):
         logging.warning("NATS CLOSED")
