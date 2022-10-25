@@ -68,7 +68,7 @@ func asyncAPIRedocHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, `
     <body>
         <redoc spec-url='http://localhost:8090/asyncapi.json'></redoc>
-        <script src='https://'></script>
+        <script src='https://raw.githubusercontent.com/wegroupwolves/natsapi/master/render-asyncapi/redoc.asyncapi.js'></script>
     </body>
     `)
 }
