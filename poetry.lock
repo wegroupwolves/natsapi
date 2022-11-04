@@ -661,7 +661,7 @@ anyio = ">=3.0.0,<4"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f6758b0f518e1e635c434a79b3cca95e9caeb65152f71637bdb129a70bf44332"
+content-hash = "4b33edcf64508309bece278a3da822ccf5bbce0c0e564731d09fc192c7efdf11"
 
 [metadata.files]
 anyio = [
