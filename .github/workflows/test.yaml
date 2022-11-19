@@ -34,5 +34,5 @@ jobs:
             poetry-version: ${{ matrix.poetry-version }}
         - name: Install Dependencies
           run: poetry install
-        - name: Run pytest
-          run: poetry run pytest
+        - name: Run CI scripts
+          run: make ci
