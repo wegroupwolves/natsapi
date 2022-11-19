@@ -29,7 +29,7 @@ async def nats_index(request: Request):
 @app.get("/rest/index")
 async def rest_index():
     async with httpx.AsyncClient() as client:
-        r = await client.get('http://localhost:5001/index')
+        r = await client.get("http://localhost:5001/index")
     return r.json()
 
 
@@ -47,5 +47,5 @@ async def nats_sum(request: Request, numbers: Numbers):
 @app.post("/rest/sum")
 async def rest_sum(numbers: Numbers):
     async with httpx.AsyncClient() as client:
-        r = await client.post('http://localhost:5001/sum', json=numbers.dict())
+        r = await client.post("http://localhost:5001/sum", json=numbers.dict())
     return r.text
