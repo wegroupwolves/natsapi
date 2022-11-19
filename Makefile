@@ -41,4 +41,4 @@ security: ## Run security check
 	poetry run bandit -lll -r .
 	poetry run vulture . --min-confidence 95
 
-ci: lint format security complexity test ## Run all
+ci: lint format security test ## Run all
