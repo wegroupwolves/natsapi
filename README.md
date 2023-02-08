@@ -1,5 +1,8 @@
 # NatsAPI
 
+NatsAPI is a framework to develop Python3 applications that uses [nats](https://nats.io) as communication medium instead of http. With nats you have a smaller footprint, faster req/s, pub/sub and better observability.
+NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and has the same development style. NatsAPI produces an [AsyncAPI](https://www.asyncapi.com/) schema out of the box, **this schema is not fully compatible with the standard waiting for [version 3.0.0 to support request/reply pattern](https://github.com/asyncapi/spec/issues/94)**.
+
 ## Table of Contents
 
 <!-- vim-markdown-toc GitLab -->
@@ -13,12 +16,8 @@
         * [Reload](#reload)
     * [Generating documentation (asyncapi)](#generating-documentation-asyncapi)
     * [Plugins](#plugins)
-* [History](#history)
 
 <!-- vim-markdown-toc -->
-
-NatsAPI is a framework to develop Python3 applications that uses [nats](https://nats.io) as communication medium instead of http. With nats you have a smaller footprint, faster req/s, pub/sub and better observability.
-It is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and has the same development style. NatsAPI produces an [AsyncAPI](https://www.asyncapi.com/) schema out of the box, **this schema is not fully compatible with the standard**.
 
 ## Installation
 
