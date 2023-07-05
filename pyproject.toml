@@ -18,7 +18,7 @@ generate-setup-file = false
 [tool.poetry.dependencies]
 python = "^3.9"
 
-pydantic = "^1.10.2"
+pydantic = ">=1.10.2,<3.0.0"
 nats-py = {extras = ["nkeys"], version = "^2.2.0"}
 watchgod = "^0.8.2"
 
