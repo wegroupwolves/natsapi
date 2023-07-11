@@ -8,8 +8,7 @@ from natsapi.models import ErrorData, JsonRPCError, JsonRPCRequest
 
 def get_validation_target(e):
     err_loc_tree = [str(loc_part) for loc_part in e["loc"]]
-    target = ".".join(err_loc_tree)
-    return target
+    return ".".join(err_loc_tree)
 
 
 def handle_jsonrpc_exception(exc: JsonRPCException, request: JsonRPCRequest, subject: str) -> JsonRPCError:

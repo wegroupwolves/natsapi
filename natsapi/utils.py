@@ -24,9 +24,8 @@ def get_summary(endpoint: Callable) -> str:
 
 
 def generate_operation_id_for_subject(*, summary: str, subject: str) -> str:
-    operation_id = summary + "_" + subject
-    operation_id = re.sub("[^0-9a-zA-Z_]", "_", operation_id)
-    return operation_id
+    operation_id = f"{summary}_{subject}"
+    return re.sub("[^0-9a-zA-Z_]", "_", operation_id)
 
 
 def create_field(
@@ -68,7 +67,7 @@ def get_model_definitions(
         m_schema, m_definitions, m_nested_models = model_process_schema(
             model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
         )
-        definitions.update(m_definitions)
+        definitions |= m_definitions
         try:
             model_name = model_name_map[model]
         except KeyError as exc:
@@ -82,7 +81,7 @@ def get_model_definitions(
 
 def get_request_model(func: Callable, subject: str, skip_validation: bool):
     parameters = collections.OrderedDict(inspect.signature(func).parameters)
-    name_prefix = func.__name__ if not func.__name__ == "_" else subject
+    name_prefix = func.__name__ if func.__name__ != "_" else subject
 
     if skip_validation:
         assert (
@@ -94,20 +93,15 @@ def get_request_model(func: Callable, subject: str, skip_validation: bool):
     for i, parameter in enumerate(parameters.values()):
         if i == 0:
             assert parameter.name == "app", "First parameter should be named 'app'"
-            if parameter.annotation == Any:
-                continue
-            else:
+            if parameter.annotation != Any:
                 assert (
                     parameter.annotation.__name__ in valid_app_types
                 ), f"Valid types for app are: NatsAPI, FastAPI, or Any. Got {parameter.annotation.__name__}"
-                continue
-
+            continue
         if parameter.name in ["args", "kwargs"] and skip_validation:
             continue
-        else:
-            assert parameter.annotation is not inspect._empty, f"{parameter.name} has no type"
-            default = ... if parameter.default is inspect._empty else parameter.default
-            param_fields[parameter.name] = (parameter.annotation, default)
+        assert parameter.annotation is not inspect._empty, f"{parameter.name} has no type"
+        default = ... if parameter.default is inspect._empty else parameter.default
+        param_fields[parameter.name] = (parameter.annotation, default)
 
-    model = create_model(f"{name_prefix}_params", **param_fields)
-    return model
+    return create_model(f"{name_prefix}_params", **param_fields)

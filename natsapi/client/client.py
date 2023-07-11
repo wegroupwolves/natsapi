@@ -66,14 +66,17 @@ class NatsClient(object):
         """
         json_rpc_payload = JsonRPCRequest(params=params, method=method, timeout=timeout)
         reply_raw = await self.nats.request(subject, json_rpc_payload.json().encode(), timeout, headers=headers)
-        reply = JsonRPCReply.parse_raw(reply_raw.data)
-        return reply
+        return JsonRPCReply.parse_raw(reply_raw.data)
 
     async def handle_request(self, msg):
         if msg.reply and msg.reply != "None":
-            asyncio.create_task(self._handle_request(msg), name="natsapi_" + secrets.token_hex(16))
+            asyncio.create_task(
+                self._handle_request(msg), name=f"natsapi_{secrets.token_hex(16)}"
+            )
         else:
-            asyncio.create_task(self._handle_publish(msg), name="natsapi_" + secrets.token_hex(16))
+            asyncio.create_task(
+                self._handle_publish(msg), name=f"natsapi_{secrets.token_hex(16)}"
+            )
 
     async def _handle_publish(self, msg):
         request = JsonRPCRequest.parse_raw(msg.data)
@@ -151,10 +154,14 @@ class NatsClient(object):
         The method will only return 'None' if you have a custom exception inheriting from BaseException.
         But inheriting from BaseException is bad practice, and your application should crash if you do this.
         """
-        for cls in type(exc).__mro__:
-            if cls in self._exception_handlers:
-                return self._exception_handlers[cls]
-        return None
+        return next(
+            (
+                self._exception_handlers[cls]
+                for cls in type(exc).__mro__
+                if cls in self._exception_handlers
+            ),
+            None,
+        )
 
     async def _error_cb(self, e):
         logging.exception(e)
