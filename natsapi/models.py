@@ -60,5 +60,7 @@ class JsonRPCRequest(BaseModel):
         return id or uuid4()
 
     @classmethod
-    def with_params(self, params: BaseModel):
-        return create_model("JsonRPC" + params.__name__, __base__=self, params=(params, ...))
+    def with_params(cls, params: BaseModel):
+        return create_model(
+            f"JsonRPC{params.__name__}", __base__=cls, params=(params, ...)
+        )

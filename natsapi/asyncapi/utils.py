@@ -23,24 +23,21 @@ def get_flat_models_from_routes(
 ) -> Set[Union[Type[BaseModel], Type[Enum]]]:
     replies_from_routes: Set[ModelField] = set()
     requests_from_routes: Set[ModelField] = set()
-    messages_from_pubs: Set[ModelField] = set()
     for route in routes:
-        if getattr(route, "include_schema", True) and isinstance(route, Request):
-            if route.result:
-                replies_from_routes.add(route.request_field)
-            if route.params:
-                replies_from_routes.add(route.reply_field)
-        elif getattr(route, "include_schema", True) and isinstance(route, Publish):
-            if route.params:
-                replies_from_routes.add(route.reply_field)
-    for pub in pubs:
-        messages_from_pubs.add(pub.params_field)
-
-    flat_models = get_flat_models_from_fields(
+        if getattr(route, "include_schema", True):
+            if isinstance(route, Request):
+                if route.result:
+                    replies_from_routes.add(route.request_field)
+                if route.params:
+                    replies_from_routes.add(route.reply_field)
+            elif isinstance(route, Publish):
+                if route.params:
+                    replies_from_routes.add(route.reply_field)
+    messages_from_pubs: Set[ModelField] = {pub.params_field for pub in pubs}
+    return get_flat_models_from_fields(
         replies_from_routes | requests_from_routes | messages_from_pubs,
         known_models=set(),
     )
-    return flat_models
 
 
 def get_flat_response_models(r) -> List[Type[BaseModel]]:
@@ -50,15 +47,13 @@ def get_flat_response_models(r) -> List[Type[BaseModel]]:
 
     :r Single or multiple response models
     """
-    if type(r) is typing._UnionGenericAlias:
-        return list(r.__args__)
-    else:
-        return [r]
+    return list(r.__args__) if type(r) is typing._UnionGenericAlias else [r]
 
 
 def get_asyncapi_request_operation_metadata(operation: Request) -> Dict[str, Any]:
-    metadata: Dict[str, Any] = {}
-    metadata["summary"] = operation.summary.replace("_", " ").title()
+    metadata: Dict[str, Any] = {
+        "summary": operation.summary.replace("_", " ").title()
+    }
     metadata["description"] = operation.description
 
     if operation.tags:
@@ -106,8 +101,7 @@ def generate_asyncapi_publish_channel(operation: Publish, model_name_map: Dict[s
 
 
 def domain_errors_schema(lower_bound: int, upper_bound: int, exceptions: List[Exception]):
-    schema = {}
-    schema["range"] = {"upper": upper_bound, "lower": lower_bound}
+    schema = {"range": {"upper": upper_bound, "lower": lower_bound}}
     errors = []
     for exc in exceptions:
         try:
@@ -174,8 +168,11 @@ def get_asyncapi(
     servers: Optional[Dict[str, Server]] = None,
 ) -> Dict[str, Any]:
     subjects: Dict[str, Dict[str, Any]] = {}
-    info = {"title": title, "version": version}
-    info["description"] = description if description else None
+    info = {
+        "title": title,
+        "version": version,
+        "description": description if description else None,
+    }
     components: Dict[str, Dict[str, Any]] = {}
 
     output: Dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
@@ -210,7 +207,7 @@ def get_asyncapi(
     output["externalDocs"] = external_docs.dict() if external_docs else None
     output["errors"] = domain_errors_schema(errors.lower_bound, errors.upper_bound, errors.errors) if errors else None
 
-    output["channels"] = subjects if len(subjects) > 0 else None
+    output["channels"] = subjects if subjects else None
     output["components"] = components
 
     return jsonable_encoder(AsyncAPI(**output), by_alias=True, exclude_none=True)
