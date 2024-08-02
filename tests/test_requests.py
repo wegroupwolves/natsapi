@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from natsapi.models import JsonRPCReply, JsonRPCRequest
+from natsapi.context import CTX_JSONRPC_ID
 
 from natsapi import NatsAPI, SubjectRouter
 from natsapi.exceptions import JsonRPCException
@@ -167,3 +169,14 @@ async def test_each_nats_request_should_have_different_id(app, natsapi_mock):
 
     # then:
     assert natsapi_mock.payloads["foobar"][0]["id"] != natsapi_mock.payloads["foobar"][1]["id"]
+
+async def test_send_request_should_store_jsonrpc_id_in_contextvars(app):
+    @app.request(subject="foo")
+    async def _(app):
+        return {"jsonrpc_id": CTX_JSONRPC_ID.get()}
+
+    json_rpc_payload = JsonRPCRequest(params={"foo": 1}, method=None, timeout=60)
+    reply_raw = await app.nc.nats.request("natsapi.development.foo", json_rpc_payload.json().encode(), 60, headers=None)
+    reply = JsonRPCReply.parse_raw(reply_raw.data)
+
+    assert reply.result["jsonrpc_id"] == str(json_rpc_payload.id)
