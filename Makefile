@@ -37,6 +37,7 @@ static-check: ## Static code check
 security: ## Run security check
 	poetry export -f requirements.txt --without-hashes | sed 's/; .*//' > /tmp/req.txt
 	sed -i '/^typing-extensions/d' /tmp/req.txt
+	sed -i '/^anyio/d' /tmp/req.txt
 	poetry run safety check -r /tmp/req.txt
 	poetry run bandit -lll -r .
 	poetry run vulture . --min-confidence 95

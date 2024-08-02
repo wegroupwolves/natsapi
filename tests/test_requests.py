@@ -170,6 +170,7 @@ async def test_each_nats_request_should_have_different_id(app, natsapi_mock):
     # then:
     assert natsapi_mock.payloads["foobar"][0]["id"] != natsapi_mock.payloads["foobar"][1]["id"]
 
+
 async def test_send_request_should_store_jsonrpc_id_in_contextvars(app):
     @app.request(subject="foo")
     async def _(app):

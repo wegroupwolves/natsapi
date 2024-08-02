@@ -112,7 +112,6 @@ class NatsClient(object):
             if subject not in self.routes and request.method:
                 subject = ".".join([subject, request.method])
 
-            
             try:
                 logging.debug(f"Handling: {subject}")
                 route: Request = self.routes[subject]
