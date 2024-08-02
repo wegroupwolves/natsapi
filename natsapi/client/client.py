@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import logging
 import secrets
+from natsapi.context import CTX_JSONRPC_ID
 
 
 from ssl import create_default_context
@@ -105,6 +106,7 @@ class NatsClient(object):
             request = JsonRPCRequest.parse_raw(msg.data)
             request.id = request.id or uuid4()
 
+            CTX_JSONRPC_ID.set(request.id)
             subject = msg.subject
 
             if subject not in self.routes and request.method:
