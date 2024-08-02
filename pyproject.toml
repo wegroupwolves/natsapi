@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "natsapi"
-version = "0.0.3"
+version = "0.0.4"
 description = "A Python microservice framework that speaks nats.io with asyncapi spec generation capability"
 authors = ["WeGroup NV <it@wegroup.be>"]
 readme = "README.md"
