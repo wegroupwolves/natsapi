@@ -1,6 +1,5 @@
 import asyncio
 import inspect
-import os
 import signal
 
 
@@ -16,7 +15,6 @@ from natsapi.client.config import default_config
 from natsapi.exception_handlers import handle_internal_error, handle_jsonrpc_exception, handle_validation_error
 from natsapi.exceptions import DuplicateRouteException, JsonRPCException
 from natsapi.logger import logger
-from natsapi.reload import Reloader
 from natsapi.routing import Pub, Publish, Request, Sub, SubjectRouter
 from natsapi.state import State
 from natsapi.types import DecoratedCallable
@@ -222,15 +220,9 @@ class NatsAPI(object):
             logger.info(f"Finished cancelling tasks, results: {results}")
             self.loop.stop()
 
-    def run(self, reload=False):
-        if reload or os.environ.get("NATSAPI_RELOAD") and bool(os.environ.get("NATSAPI_RELOAD")):
-            try:
-                self.loop.run_until_complete(Reloader(self.startup).run())
-            except asyncio.exceptions.CancelledError:
-                pass
-        else:
-            self.loop.run_until_complete(self.startup())
-            self.loop.run_forever()
+    def run(self):
+        self.loop.run_until_complete(self.startup())
+        self.loop.run_forever()
 
     def add_request(
         self,
