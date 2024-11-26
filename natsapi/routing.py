@@ -32,8 +32,8 @@ class Request:
         self.operation_id = generate_operation_id_for_subject(summary=self.summary, subject=self.subject)
         self.result = result
         self.params = get_request_model(self.endpoint, subject, self.skip_validation)
-        reply_name = "Reply_" + self.operation_id
-        request_name = "Request_" + self.operation_id
+        reply_name = f"Reply_{self.operation_id}"
+        request_name = f"Request_{self.operation_id}"
         self.reply_field = create_field(name=reply_name, type_=self.params)
         self.request_field = create_field(name=request_name, type_=self.result)
 
@@ -66,7 +66,7 @@ class Publish:
         self.summary = summary or get_summary(endpoint) or subject
         self.operation_id = generate_operation_id_for_subject(summary=self.summary, subject=self.subject)
         self.params = get_request_model(self.endpoint, subject, self.skip_validation)
-        reply_name = "Reply_" + self.operation_id
+        reply_name = f"Reply_{self.operation_id}"
         self.reply_field = create_field(name=reply_name, type_=self.params)
 
         self.tags = tags or []
@@ -115,7 +115,7 @@ class Pub:
         self.tags = tags or []
         self.externalDocs = externalDocs
         self.params = params
-        self.params_field = create_field(name="Publish_" + subject, type_=self.params)
+        self.params_field = create_field(name=f"Publish_{subject}", type_=self.params)
 
 
 class SubjectRouter:
