@@ -16,6 +16,7 @@ NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and
         * [Reload](#reload)
     * [Generating documentation (asyncapi)](#generating-documentation-asyncapi)
     * [Plugins](#plugins)
+    * [Roadmap](#roadmap)
 
 <!-- vim-markdown-toc -->
 
@@ -184,6 +185,12 @@ When surfing to [localhost:8090](http://127.0.0.1:8090), the documentation shoul
 
 ![Example of redoc](./doc/readme-example-redoc.png)
 
+### Plugins
+
+Plugins can be added and are found in `natsapi/plugin.py`.
+
+- [natsapi_mock](./natsapi/plugin.py): A handy mock fixture to intercept nats requests and to fake nats responses for any subject.
+
 ### Roadmap
 
 - [ ] Add Request/Reply AsyncApi support
@@ -193,10 +200,4 @@ When surfing to [localhost:8090](http://127.0.0.1:8090), the documentation shoul
 - [ ] Add support for 'side effect' testing so that you can have more than 1 response for same mocked route, based on ordering. See respx
 - [ ] Better CI/CD -> with Python 3.13
 - [ ] Make `nkeys` optional
-
-
-### Plugins
-
-Plugins can be added and are found in `natsapi/plugin.py`.
-
-- [natsapi_mock](./natsapi/plugin.py): A handy mock fixture to intercept nats requests and to fake nats responses for any subject.
+- [ ] Pydantic V2 support (nice to have)
