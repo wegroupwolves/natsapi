@@ -7,7 +7,7 @@ from typing import Optional
 import pytest
 
 
-from pydantic import BaseModel, Field, ValidationError, create_model
+from pydantic import BaseModel, Field, ValidationError, create_model, RootModel
 
 from natsapi.encoders import jsonable_encoder
 
@@ -76,8 +76,9 @@ class ModelWithDefault(BaseModel):
     bla: str = "bla"
 
 
-class ModelWithRoot(BaseModel):
-    __root__: str
+class ModelWithRoot(RootModel):
+    pass
+    # __root__: str
 
 
 @pytest.fixture(name="model_with_path", params=[PurePath, PurePosixPath, PureWindowsPath])

@@ -78,9 +78,9 @@ class Info(BaseModel):
     title: str
     version: str
     description: Optional[str]
-    termsOfService: Optional[str]
-    contact: Optional[Contact]
-    licence: Optional[License]
+    termsOfService: Optional[str] = None
+    contact: Optional[Contact] = None
+    licence: Optional[License] = None
 
 
 class Reference(BaseModel):
@@ -89,8 +89,8 @@ class Reference(BaseModel):
 
 class Tag(BaseModel):
     name: str
-    description: Optional[str]
-    externalDocs: Optional[ExternalDocumentation]
+    description: Optional[str] = None
+    externalDocs: Optional[ExternalDocumentation] = None
 
 
 # TODO: Add nats bindings
@@ -124,35 +124,35 @@ class CorrelationId(BaseModel):
 
 
 class MessageTrait(BaseModel):
-    headers: Optional[Union[Schema, Reference]]
-    correlationId: Optional[Union[CorrelationId, Reference]]
-    schemaFormat: Optional[str]
-    contentType: Optional[str]
-    name: Optional[str]
-    title: Optional[str]
-    summary: Optional[str]
-    description: Optional[str]
-    tags: Optional[List[Tag]]
-    externalDocs: Optional[ExternalDocumentation]
-    bindings: Optional[Union[MessageBindings, Reference]]
-    examples: Optional[Dict[str, Any]]
+    headers: Optional[Union[Schema, Reference]] = None
+    correlationId: Optional[Union[CorrelationId, Reference]] = None
+    schemaFormat: Optional[str] = None
+    contentType: Optional[str] = None
+    name: Optional[str] = None
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Optional[Union[MessageBindings, Reference]] = None
+    examples: Optional[Dict[str, Any]] = None
 
 
 class Message(BaseModel):
-    headers: Optional[Union[Schema, Reference]]
-    payload: Optional[Any]
-    correlationId: Optional[Union[CorrelationId, Reference]]
-    schemaFormat: Optional[str]
-    contentType: Optional[str]
-    name: Optional[str]
-    title: Optional[str]
-    summary: Optional[str]
-    description: Optional[str]
-    tags: Optional[List[Tag]]
-    externalDocs: Optional[ExternalDocumentation]
-    bindings: Optional[Union[MessageBindings, Reference]]
-    examples: Optional[Dict[str, Any]]
-    traits: Optional[Union[MessageTrait, Reference]]
+    headers: Optional[Union[Schema, Reference]] = None
+    payload: Optional[Any] = None
+    correlationId: Optional[Union[CorrelationId, Reference]] = None
+    schemaFormat: Optional[str] = None
+    contentType: Optional[str] = None
+    name: Optional[str] = None
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Optional[Union[MessageBindings, Reference]] = None
+    examples: Optional[Dict[str, Any]] = None
+    traits: Optional[Union[MessageTrait, Reference]] = None
 
 
 class OperationTrait(BaseModel):
@@ -165,14 +165,14 @@ class OperationTrait(BaseModel):
 
 
 class Operation(BaseModel):
-    operationId: Optional[str]
-    summary: Optional[str]
-    description: Optional[str]
-    tags: Optional[List[Tag]]
-    externalDocs: Optional[ExternalDocumentation]
-    bindings: Optional[Union[OperationBindings, Reference]]
-    traits: Optional[List[Union[OperationTrait, Reference]]]
-    message: Optional[Union[Message, Reference]]
+    operationId: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Optional[Union[OperationBindings, Reference]] = None
+    traits: Optional[List[Union[OperationTrait, Reference]]] = None
+    message: Optional[Union[Message, Reference]] = None
 
 
 class SubscribeOperation(Operation):
@@ -191,20 +191,20 @@ class Parameter(BaseModel):
 
 
 class ChannelItem(BaseModel):
-    description: Optional[str]
-    subscribe: Optional[SubscribeOperation]
-    publish: Optional[Operation]
-    request: Optional[RequestOperation]
-    parameters: Optional[Dict[str, Union[Parameter, Reference]]]
-    bindings: Optional[Union[ChannelBindings, Reference]]
+    description: Optional[str] = None
+    subscribe: Optional[SubscribeOperation] = None
+    publish: Optional[Operation] = None
+    request: Optional[RequestOperation] = None
+    parameters: Optional[Dict[str, Union[Parameter, Reference]]] = None
+    bindings: Optional[Union[ChannelBindings, Reference]] = None
     deprecated: Optional[bool] = None
 
 
 class ServerVariable(BaseModel):
-    enum: Optional[List[str]]
-    default: Optional[str]
-    description: Optional[str]
-    examples: Optional[List[str]]
+    enum: Optional[List[str]] = []
+    default: Optional[str] = None
+    description: Optional[str] = None
+    examples: Optional[List[str]] = []
 
 
 class Server(BaseModel):
@@ -213,20 +213,20 @@ class Server(BaseModel):
     protocolVersion: Optional[str]
     description: Optional[str]
     variables: Optional[Dict[str, ServerVariable]]
-    bindings: Optional[Union[ServerBindings, Reference]]
+    bindings: Optional[Union[ServerBindings, Reference]] = None
 
 
 class Components(BaseModel):
-    schemas: Optional[Dict[str, Union[Schema, Reference]]]
-    messages: Optional[Dict[str, Union[Message, Reference]]]
-    parameters: Optional[Dict[str, Union[Dict[str, Parameter], Reference]]]
-    correlationIds: Optional[Dict[str, Union[CorrelationId, Reference]]]
-    operationTraits: Optional[Dict[str, Union[OperationTrait, Reference]]]
-    messageTraits: Optional[Dict[str, Union[MessageTrait, Reference]]]
-    serverBindings: Optional[Dict[str, Union[ServerBindings, Reference]]]
-    channelBindings: Optional[Dict[str, Union[ChannelBindings, Reference]]]
-    operationBindings: Optional[Dict[str, Union[OperationBindings, Reference]]]
-    messageBindings: Optional[Dict[str, Union[MessageBindings, Reference]]]
+    schemas: Optional[Dict[str, Union[Schema, Reference]]] = None
+    messages: Optional[Dict[str, Union[Message, Reference]]] = None
+    parameters: Optional[Dict[str, Union[Dict[str, Parameter], Reference]]] = None
+    correlationIds: Optional[Dict[str, Union[CorrelationId, Reference]]] = None
+    operationTraits: Optional[Dict[str, Union[OperationTrait, Reference]]] = None
+    messageTraits: Optional[Dict[str, Union[MessageTrait, Reference]]] = None
+    serverBindings: Optional[Dict[str, Union[ServerBindings, Reference]]] = None
+    channelBindings: Optional[Dict[str, Union[ChannelBindings, Reference]]] = None
+    operationBindings: Optional[Dict[str, Union[OperationBindings, Reference]]] = None
+    messageBindings: Optional[Dict[str, Union[MessageBindings, Reference]]] = None
 
 
 class Range(BaseModel):
@@ -246,12 +246,12 @@ class Errors(BaseModel):
 
 class AsyncAPI(BaseModel):
     asyncapi: str
-    id: Optional[str]
+    id: Optional[str] = None
     info: Info
-    servers: Optional[Dict[str, Server]]
+    servers: Optional[Dict[str, Server]] = None
     defaultContentType: Optional[str] = "application/json"
-    channels: Optional[Dict[str, Union[ChannelItem, Reference]]]
-    components: Optional[Components]
-    tags: Optional[List[Tag]]
-    externalDocs: Optional[ExternalDocumentation]
-    errors: Optional[Errors]
+    channels: Optional[Dict[str, Union[ChannelItem, Reference]]] = None
+    components: Optional[Components] = None
+    tags: Optional[List[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    errors: Optional[Errors] = None

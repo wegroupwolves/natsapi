@@ -5,8 +5,9 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 from pydantic import BaseModel
-from pydantic.fields import ModelField
-from pydantic.schema import get_flat_models_from_fields, get_model_name_map
+from pydantic.v1.fields import ModelField
+from pydantic.v1.schema import get_model_name_map
+from pydantic.v1.schema import get_flat_models_from_fields
 
 from natsapi.asyncapi.constants import REF_PREFIX
 from natsapi.encoders import jsonable_encoder
