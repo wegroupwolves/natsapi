@@ -6,7 +6,7 @@
 PREFIX = /usr/local  # Default installation directory
 PYTEST_GENERAL_FLAGS := -vvvx --asyncio-mode=auto
 PYTEST_COV_FLAGS := --cov=natsapi --cov-append --cov-report=term-missing --cov-fail-under=92
-PYTEST_COV_ENV := COV_CORE_SOURCE=natsapi COV_CORE_CONFIG=.coveragerc COV_CORE_DATAFILE=.coverage.eager
+PYTEST_COV_ENV := COV_CORE_SOURCE=natsapi COV_CORE_CONFIG=.coveragerc
 
 ##---------- Build targets ----------------------------------------------------
 
@@ -17,7 +17,7 @@ test: ## Run tests
 	 $(PYTEST_COV_ENV) poetry run pytest $(PYTEST_GENERAL_FLAGS) $(PYTEST_COV_FLAGS)
 
 testr: ## Run tests with entr
-	find natsapi tests | $(PYTEST_COV_ENV) entr -r poetry run pytest $(PYTEST_GENERAL_FLAGS) $(PYTEST_COV_FLAGS)
+	find natsapi tests | entr -r poetry run pytest --disable-warnings -vvvx
 
 lint: ## Lint checks
 	poetry run flake8 .
