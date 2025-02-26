@@ -8,9 +8,16 @@ from enum import Enum
 from typing import Any, Callable, Dict, Optional, Set, Type, Union
 
 from pydantic import BaseConfig, BaseModel, create_model
-from pydantic.class_validators import Validator
-from pydantic.fields import FieldInfo, ModelField
-from pydantic.schema import model_process_schema
+
+# from pydantic.class_validators import Validator
+
+# from pydantic.deprecated.class_validators import V1Validator as Validator
+from pydantic.fields import FieldInfo
+from natsapi._compat import ModelField, PYDANTIC_V2
+
+from pydantic.v1.schema import model_process_schema
+
+# from pydantic.schema import model_process_schema
 
 from natsapi.asyncapi.constants import REF_PREFIX
 from natsapi.exceptions import NatsAPIError
@@ -32,28 +39,53 @@ def generate_operation_id_for_subject(*, summary: str, subject: str) -> str:
 def create_field(
     name: str,
     type_: Type[Any],
-    class_validators: Optional[Dict[str, Validator]] = None,
+    class_validators: Optional[Dict[str, Any]] = None,
     model_config: Type[BaseConfig] = BaseConfig,
     field_info: Optional[FieldInfo] = None,
+
+    # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Might fix the defaults?
+    # default: Optional[Any] = Undefined,
+    # alias: Optional[str] = None,
+    # required: Union[bool, UndefinedType] = Undefined,
 ) -> ModelField:
     """
     Yanked from fastapi.utils
     Create a new reply field. Raises if type_ is invalid.
     """
     class_validators = class_validators or {}
-    field_info = field_info or FieldInfo(None)
 
-    field = functools.partial(
-        ModelField,
-        name=name,
-        type_=type_,
-        class_validators=class_validators,
-        required=True,
-        model_config=model_config,
-    )
+    if PYDANTIC_V2:
+        field_info = field_info or FieldInfo(
+            annotation=type_
+        )
+    else:
+        field_info = field_info or FieldInfo()
+
+    # field = functools.partial(
+    #     ModelField,
+    #     name=name,
+    #     type_=type_,
+    #     class_validators=class_validators,
+    #     required=True,
+    #     model_config=model_config,
+    # )
+
+    kwargs = {"name": name, "field_info": field_info}
+
+    if not PYDANTIC_V2:
+        kwargs.update(
+            {
+                "type_": type_,
+                "class_validators": class_validators,
+                "model_config": model_config,
+                "required": True,
+                # "default": default,
+                # "alias": alias,
+            }
+        )
 
     try:
-        return field(field_info=field_info)
+        return ModelField(**kwargs)
     except RuntimeError:
         raise NatsAPIError(f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type")
 

@@ -1,4 +1,5 @@
 """yanked from fastapi"""
+from natsapi._compat import RootModel
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
@@ -76,8 +77,8 @@ class ModelWithDefault(BaseModel):
     bla: str = "bla"
 
 
-class ModelWithRoot(BaseModel):
-    __root__: str
+class ModelWithRoot(RootModel):
+    pass
 
 
 @pytest.fixture(name="model_with_path", params=[PurePath, PurePosixPath, PureWindowsPath])

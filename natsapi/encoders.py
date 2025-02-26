@@ -7,7 +7,8 @@ from types import GeneratorType
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from pydantic import BaseModel
-from pydantic.json import ENCODERS_BY_TYPE
+
+from natsapi._compat import ENCODERS_BY_TYPE, PYDANTIC_V2
 
 SetIntStr = Set[Union[int, str]]
 DictIntStrAny = Dict[Union[int, str], Any]
@@ -41,7 +42,12 @@ def jsonable_encoder(
     if exclude is not None and not isinstance(exclude, set):
         exclude = set(exclude)
     if isinstance(obj, BaseModel):
-        encoder = getattr(obj.__config__, "json_encoders", {})
+
+        if PYDANTIC_V2:
+            encoder = obj.model_config.get("json_encoders", {})
+        else:
+            encoder = getattr(obj.__config__, "json_encoders", {})
+
         if custom_encoder:
             encoder.update(custom_encoder)
         obj_dict = obj.dict(

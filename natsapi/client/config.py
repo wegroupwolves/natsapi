@@ -12,7 +12,7 @@ from nats.aio.client import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
 )
-from pydantic import BaseSettings
+from natsapi._compat import BaseSettings
 
 
 class ConnectConfig(BaseSettings):
@@ -43,7 +43,7 @@ class ConnectConfig(BaseSettings):
     signature_cb: Any = None
     user_jwt_cb: Any = None
     user_credentials: Any = None
-    nkeys_seed: str = None
+    nkeys_seed: str | None = None
     flush_timeout: Optional[float] = None
     pending_size: int = DEFAULT_PENDING_SIZE
 

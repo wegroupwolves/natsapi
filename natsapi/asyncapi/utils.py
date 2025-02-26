@@ -5,10 +5,24 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 from pydantic import BaseModel
-from pydantic.fields import ModelField
-from pydantic.schema import get_flat_models_from_fields, get_model_name_map
+from natsapi._compat import (
+    ModelField,
+    lenient_issubclass,
+    get_cached_model_fields,
+    get_compat_model_name_map,
+    get_definitions,
+    GenerateJsonSchema,
+)
 
-from natsapi.asyncapi.constants import REF_PREFIX
+# from pydantic.schema import get_flat_models_from_fields, get_model_name_map
+from pydantic.v1.schema import (
+    get_flat_models_from_fields,
+    get_model_name_map,
+    get_flat_models_from_field,
+    get_flat_models_from_model,
+)
+
+from natsapi.asyncapi.constants import REF_PREFIX, REF_TEMPLATE
 from natsapi.encoders import jsonable_encoder
 from natsapi.models import JsonRPCError
 from natsapi.routing import Pub, Publish, Request, Sub
@@ -16,6 +30,16 @@ from natsapi.utils import get_model_definitions
 
 from . import Errors, ExternalDocumentation, Server
 from .models import AsyncAPI
+
+
+def _get_flat_fields_from_params(fields: List[ModelField]) -> List[ModelField]:
+    if not fields:
+        return fields
+    first_field = fields[0]
+    if len(fields) == 1 and lenient_issubclass(first_field.type_, BaseModel):
+        fields_to_extract = get_cached_model_fields(first_field.type_)
+        return fields_to_extract
+    return fields
 
 
 def get_flat_models_from_routes(
@@ -36,10 +60,9 @@ def get_flat_models_from_routes(
     for pub in pubs:
         messages_from_pubs.add(pub.params_field)
 
-    flat_models = get_flat_models_from_fields(
-        replies_from_routes | requests_from_routes | messages_from_pubs,
-        known_models=set(),
-    )
+    inputs = replies_from_routes | requests_from_routes | messages_from_pubs
+
+    flat_models = _get_flat_fields_from_params([x for x in inputs])
     return flat_models
 
 
@@ -76,7 +99,7 @@ def generate_asyncapi_request_channel(operation: Request, model_name_map: Dict[s
     operation_results = get_flat_response_models(operation.result)
 
     request_field_ref: str = REF_PREFIX + operation.params.__name__
-    reply_field_refs: str = [REF_PREFIX + model_name_map[o] for o in operation_results]
+    reply_field_refs: str = [REF_PREFIX + o.__name__ for o in operation_results]
     failed_reply_ref: str = REF_PREFIX + JsonRPCError.__name__
 
     operation_schema = get_asyncapi_request_operation_metadata(operation)
@@ -148,7 +171,9 @@ def get_sub_operation_schema(sub: Sub) -> Tuple[str, Dict[str, Any]]:
 
 
 def get_pub_operation_schema(pub: Pub, model_name_map: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
-    pub_payload: str = REF_PREFIX + model_name_map[pub.params]
+    # pub_payload: str = REF_PREFIX + model_name_map[pub.params]
+    pub_payload: str = REF_PREFIX + pub.params.__name__
+
     _pub = {
         "summary": pub.summary,
         "description": pub.description,
@@ -157,7 +182,6 @@ def get_pub_operation_schema(pub: Pub, model_name_map: Dict[str, Any]) -> Tuple[
         "tags": [{"name": tag} for tag in pub.tags] if len(pub.tags) > 0 else None,
     }
     op = {"publish": _pub}
-
     return pub.subject, op
 
 
@@ -181,11 +205,18 @@ def get_asyncapi(
     output: Dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
 
     flat_models = get_flat_models_from_routes(routes.values(), pubs)
-    model_name_map = get_model_name_map(flat_models)
-    definitions = get_model_definitions(flat_models=flat_models, model_name_map=model_name_map)
+    model_name_map = get_compat_model_name_map(flat_models)
+    schema_generator = GenerateJsonSchema(ref_template=REF_TEMPLATE)
+
+    # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Where to use the first paramter (see https://github.com/fastapi/fastapi/blob/master/fastapi/openapi/utils.py#L493)
+    _, definitions = get_definitions(
+        fields=flat_models, schema_generator=schema_generator, model_name_map=model_name_map
+    )
     definitions[JsonRPCError.__name__] = JsonRPCError.schema()
     components["schemas"] = definitions
-    if bool(flat_models):
+
+    # if bool(flat_models):
+    if 1:
         subjects: Dict[str, Dict[str, Any]] = {}
         for subject, endpoint in routes.items():
             if getattr(endpoint, "include_schema", None) and isinstance(endpoint, Request):
@@ -197,6 +228,7 @@ def get_asyncapi(
 
     for sub in subs:
         channel, operation = get_sub_operation_schema(sub)
+
         subjects[channel] = operation
 
     for pub in pubs:
