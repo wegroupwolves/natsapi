@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "natsapi"
-version = "0.0.5"
+version = "0.1.0-alpha.1"
 description = "A Python microservice framework that speaks nats.io with asyncapi spec generation capability"
 authors = ["WeGroup NV <it@wegroup.be>"]
 readme = "README.md"
@@ -16,7 +16,8 @@ generate-setup-file = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = "^1.10.13"
+pydantic = ">=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0"
+
 nats-py = {extras = ["nkeys"], version = "^2.2.0"}
 
 [tool.poetry.group.dev.dependencies]
