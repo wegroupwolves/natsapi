@@ -53,10 +53,8 @@ exclude = ["scripts"]
 target-version = "py312"
 
 [tool.ruff.lint]
-extend-select = ["C90", "I", "B", "Q", "UP", "S", "COM", "C4", "T10", "SIM", "TID", "PTH", "ERA", "ASYNC"]
-# ignore = ["F722", "E501","E741","W605","C901","F541","F811", "B026", "S101", "S104", "S105", "S106", "S113", "B008", "UP007", "UP008", "UP038"]
-# ignore = ["F722", "E501","E741","W605","C901","F541","F811", "B026", "S101", "S104", "S105", "S106", "S113", "B008", "UP007", "UP008", "UP038"]
-unfixable = ["B", "F811"]
+extend-select = ["C90", "I", "B", "Q", "UP", "S", "COM", "C4", "T10", "SIM", "TID", "PTH", "ERA"]
+ignore = ["S101", "UP038", "B017", "UP007", "UP008", "B006", "C408"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 25

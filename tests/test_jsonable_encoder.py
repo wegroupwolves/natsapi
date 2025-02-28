@@ -158,10 +158,7 @@ def test_custom_encoders():
 
 
 def test_encode_model_with_path(model_with_path):
-    if isinstance(model_with_path.path, PureWindowsPath):
-        expected = "\\foo\\bar"
-    else:
-        expected = "/foo/bar"
+    expected = "\\foo\\bar" if isinstance(model_with_path.path, PureWindowsPath) else "/foo/bar"
     assert jsonable_encoder(model_with_path) == {"path": expected}
 
 
