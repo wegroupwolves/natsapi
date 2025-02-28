@@ -83,6 +83,14 @@ async def test_payload_with_empty_request_method_and_method__in_subject_get_succ
     reply = await app.nc.request("natsapi.development.foo", {"foo": 1})
     assert reply.result["status"] == "OK"
 
+async def test_payload_with_empty_request_method_and_method__in_subject_get_successful_reply_with_return_model(app):
+    @app.request(subject="foo")
+    async def _(app, foo: int):
+        return StatusResult(status="OK")
+
+    reply = await app.nc.request("natsapi.development.foo", {"foo": 1})
+    assert reply.result["status"] == "OK"
+
 
 async def test_unhandled_application_error_should_get_failed_reply(app):
     expected = EOFError("Unhandled exception, e.g. UniqueViolationError")

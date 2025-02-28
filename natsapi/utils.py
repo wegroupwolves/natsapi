@@ -6,12 +6,10 @@ from enum import Enum
 from typing import Any
 
 from pydantic import BaseConfig, BaseModel, create_model
-
 from pydantic.fields import FieldInfo
 from pydantic.v1.schema import model_process_schema
 
 from natsapi._compat import PYDANTIC_V2, ModelField
-
 from natsapi.asyncapi.constants import REF_PREFIX
 from natsapi.exceptions import NatsAPIError
 

@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import logging
 import secrets
+import json
 from collections.abc import Callable
 from ssl import create_default_context
 from typing import Any
@@ -54,7 +55,12 @@ class NatsClient:
         await self.nats.publish(subject, payload)
 
     async def request(
-        self, subject: str, params: dict[str, Any] = dict(), timeout=60, method: str = None, headers: dict = None,
+        self,
+        subject: str,
+        params: dict[str, Any] = dict(),
+        timeout=60,
+        method: str = None,
+        headers: dict = None,
     ) -> JsonRPCReply:
         """
         method: legacy attribute, used for backwards compatibility
@@ -120,6 +126,13 @@ class NatsClient:
                 result = await handler(app=self.app, **params)
             else:
                 result = handler(self.app, **params)
+
+            if not isinstance(result, dict):
+                if hasattr(result, "dict"):
+                    result = result.dict()
+                elif hasattr(result, "json"):
+                    result = json.loads(result.json())
+
             reply = JsonRPCReply(id=request.id, result=result)
         except Exception as exc:
             if not request:
