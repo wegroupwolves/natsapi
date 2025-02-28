@@ -1,22 +1,16 @@
 import collections
 import inspect
 import re
-
-
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Set, Type, Union
+from typing import Any
 
 from pydantic import BaseConfig, BaseModel, create_model
 
-# from pydantic.class_validators import Validator
-
-# from pydantic.deprecated.class_validators import V1Validator as Validator
 from pydantic.fields import FieldInfo
-from natsapi._compat import ModelField, PYDANTIC_V2
-
 from pydantic.v1.schema import model_process_schema
 
-# from pydantic.schema import model_process_schema
+from natsapi._compat import PYDANTIC_V2, ModelField
 
 from natsapi.asyncapi.constants import REF_PREFIX
 from natsapi.exceptions import NatsAPIError
@@ -37,14 +31,10 @@ def generate_operation_id_for_subject(*, summary: str, subject: str) -> str:
 
 def create_field(
     name: str,
-    type_: Type[Any],
-    class_validators: Optional[Dict[str, Any]] = None,
-    model_config: Type[BaseConfig] = BaseConfig,
-    field_info: Optional[FieldInfo] = None,
-    # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Might fix the defaults?
-    # default: Optional[Any] = Undefined,
-    # alias: Optional[str] = None,
-    # required: Union[bool, UndefinedType] = Undefined,
+    type_: type[Any],
+    class_validators: dict[str, Any] | None = None,
+    model_config: type[BaseConfig] = BaseConfig,
+    field_info: FieldInfo | None = None,
 ) -> ModelField:
     """
     Yanked from fastapi.utils
@@ -52,19 +42,7 @@ def create_field(
     """
     class_validators = class_validators or {}
 
-    if PYDANTIC_V2:
-        field_info = field_info or FieldInfo(annotation=type_)
-    else:
-        field_info = field_info or FieldInfo()
-
-    # field = functools.partial(
-    #     ModelField,
-    #     name=name,
-    #     type_=type_,
-    #     class_validators=class_validators,
-    #     required=True,
-    #     model_config=model_config,
-    # )
+    field_info = (field_info or FieldInfo(annotation=type_)) if PYDANTIC_V2 else (field_info or FieldInfo())
 
     kwargs = {"name": name, "field_info": field_info}
 
@@ -75,26 +53,24 @@ def create_field(
                 "class_validators": class_validators,
                 "model_config": model_config,
                 "required": True,
-                # "default": default,
-                # "alias": alias,
-            }
+            },
         )
 
     try:
         return ModelField(**kwargs)
-    except RuntimeError:
-        raise NatsAPIError(f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type")
+    except RuntimeError as e:
+        raise NatsAPIError(f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type") from e
 
 
 def get_model_definitions(
     *,
-    flat_models: Set[Union[Type[BaseModel], Type[Enum]]],
-    model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-) -> Dict[str, Any]:
-    definitions: Dict[str, Dict[str, Any]] = {}
+    flat_models: set[type[BaseModel] | type[Enum]],
+    model_name_map: dict[type[BaseModel] | type[Enum], str],
+) -> dict[str, Any]:
+    definitions: dict[str, dict[str, Any]] = {}
     for model in flat_models:
         m_schema, m_definitions, m_nested_models = model_process_schema(
-            model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
+            model, model_name_map=model_name_map, ref_prefix=REF_PREFIX,
         )
         definitions.update(m_definitions)
         try:
@@ -102,15 +78,15 @@ def get_model_definitions(
         except KeyError as exc:
             method_name = str(exc.args[0]).replace("<class 'pydantic.main.", "").replace("_params'>", "")
             raise NatsAPIError(
-                f"Could not generate schema. Two or more functions share the name '{method_name}'. Make sure methods don't share the same name"
-            )
+                f"Could not generate schema. Two or more functions share the name '{method_name}'. Make sure methods don't share the same name",
+            ) from exc
         definitions[model_name] = m_schema
     return definitions
 
 
 def get_request_model(func: Callable, subject: str, skip_validation: bool):
     parameters = collections.OrderedDict(inspect.signature(func).parameters)
-    name_prefix = func.__name__ if not func.__name__ == "_" else subject
+    name_prefix = func.__name__ if func.__name__ != "_" else subject
 
     if skip_validation:
         assert (

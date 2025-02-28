@@ -1,19 +1,18 @@
 import typing
-
-
+from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import Any
 
 from pydantic import BaseModel
+
 from natsapi._compat import (
+    GenerateJsonSchema,
     ModelField,
-    lenient_issubclass,
     get_cached_model_fields,
     get_compat_model_name_map,
     get_definitions,
-    GenerateJsonSchema,
+    lenient_issubclass,
 )
-
 from natsapi.asyncapi.constants import REF_PREFIX, REF_TEMPLATE
 from natsapi.encoders import jsonable_encoder
 from natsapi.models import JsonRPCError
@@ -23,7 +22,7 @@ from . import Errors, ExternalDocumentation, Server
 from .models import AsyncAPI
 
 
-def _get_flat_fields_from_params(fields: List[ModelField]) -> List[ModelField]:
+def _get_flat_fields_from_params(fields: list[ModelField]) -> list[ModelField]:
     if not fields:
         return fields
     first_field = fields[0]
@@ -34,10 +33,10 @@ def _get_flat_fields_from_params(fields: List[ModelField]) -> List[ModelField]:
     return fields
 
 
-def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Set[Union[Type[BaseModel], Type[Enum]]]:
-    replies_from_routes: Set[ModelField] = set()
-    requests_from_routes: Set[ModelField] = set()
-    messages_from_pubs: Set[ModelField] = set()
+def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> set[type[BaseModel] | type[Enum]]:
+    replies_from_routes: set[ModelField] = set()
+    requests_from_routes: set[ModelField] = set()
+    messages_from_pubs: set[ModelField] = set()
     for route in routes:
         if getattr(route, "include_schema", True) and isinstance(route, Request):
             if route.result:
@@ -55,7 +54,7 @@ def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Se
     return fields
 
 
-def get_flat_response_models(r) -> List[Type[BaseModel]]:
+def get_flat_response_models(r) -> list[type[BaseModel]]:
     """
     Returns flattened collection of response models of a route.
     If the response models are of typing.Union, a list of possible response models is returned.
@@ -68,8 +67,8 @@ def get_flat_response_models(r) -> List[Type[BaseModel]]:
         return [r]
 
 
-def get_asyncapi_request_operation_metadata(operation: Request) -> Dict[str, Any]:
-    metadata: Dict[str, Any] = {}
+def get_asyncapi_request_operation_metadata(operation: Request) -> dict[str, Any]:
+    metadata: dict[str, Any] = {}
     metadata["summary"] = operation.summary.replace("_", " ").title()
     metadata["description"] = operation.description
 
@@ -83,7 +82,7 @@ def get_asyncapi_request_operation_metadata(operation: Request) -> Dict[str, Any
     return metadata
 
 
-def generate_asyncapi_request_channel(operation: Request, model_name_map: Dict[str, Any]) -> Any:
+def generate_asyncapi_request_channel(operation: Request, model_name_map: dict[str, Any]) -> Any:
 
     operation_results = get_flat_response_models(operation.result)
 
@@ -107,7 +106,7 @@ def generate_asyncapi_request_channel(operation: Request, model_name_map: Dict[s
     return {"request": operation_schema, "deprecated": operation.deprecated}
 
 
-def generate_asyncapi_publish_channel(operation: Publish, model_name_map: Dict[str, Any]) -> Any:
+def generate_asyncapi_publish_channel(operation: Publish, model_name_map: dict[str, Any]) -> Any:
     request_field_ref: str = REF_PREFIX + operation.params.__name__
 
     operation_schema = get_asyncapi_request_operation_metadata(operation)
@@ -117,7 +116,7 @@ def generate_asyncapi_publish_channel(operation: Publish, model_name_map: Dict[s
     return {"publish": operation_schema, "deprecated": operation.deprecated}
 
 
-def domain_errors_schema(lower_bound: int, upper_bound: int, exceptions: List[Exception]):
+def domain_errors_schema(lower_bound: int, upper_bound: int, exceptions: list[Exception]):
     schema = {}
     schema["range"] = {"upper": upper_bound, "lower": lower_bound}
     errors = []
@@ -147,7 +146,7 @@ def domain_errors_schema(lower_bound: int, upper_bound: int, exceptions: List[Ex
     return schema
 
 
-def get_sub_operation_schema(sub: Sub) -> Tuple[str, Dict[str, Any]]:
+def get_sub_operation_schema(sub: Sub) -> tuple[str, dict[str, Any]]:
     _sub = {
         "summary": sub.summary,
         "description": sub.description,
@@ -159,8 +158,7 @@ def get_sub_operation_schema(sub: Sub) -> Tuple[str, Dict[str, Any]]:
     return sub.subject, op
 
 
-def get_pub_operation_schema(pub: Pub, model_name_map: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
-    # pub_payload: str = REF_PREFIX + model_name_map[pub.params]
+def get_pub_operation_schema(pub: Pub, model_name_map: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     pub_payload: str = REF_PREFIX + pub.params.__name__
 
     _pub = {
@@ -180,18 +178,18 @@ def get_asyncapi(
     asyncapi_version: str,
     external_docs: ExternalDocumentation,
     errors: Errors,
-    routes: Dict[str, Request],
-    subs: List[Sub],
-    pubs: List[Pub],
-    description: Optional[str] = None,
-    servers: Optional[Dict[str, Server]] = None,
-) -> Dict[str, Any]:
-    subjects: Dict[str, Dict[str, Any]] = {}
+    routes: dict[str, Request],
+    subs: list[Sub],
+    pubs: list[Pub],
+    description: str | None = None,
+    servers: dict[str, Server] | None = None,
+) -> dict[str, Any]:
+    subjects: dict[str, dict[str, Any]] = {}
     info = {"title": title, "version": version}
     info["description"] = description if description else None
-    components: Dict[str, Dict[str, Any]] = {}
+    components: dict[str, dict[str, Any]] = {}
 
-    output: Dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
+    output: dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
 
     all_fields = get_fields_from_routes(routes.values(), pubs)
     model_name_map = get_compat_model_name_map(all_fields)
@@ -199,12 +197,12 @@ def get_asyncapi(
 
     # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Where to use the first paramter (see https://github.com/fastapi/fastapi/blob/master/fastapi/openapi/utils.py#L493)
     _, definitions = get_definitions(
-        fields=all_fields, schema_generator=schema_generator, model_name_map=model_name_map
+        fields=all_fields, schema_generator=schema_generator, model_name_map=model_name_map,
     )
     definitions[JsonRPCError.__name__] = JsonRPCError.schema()
     components["schemas"] = definitions
 
-    subjects: Dict[str, Dict[str, Any]] = {}
+    subjects: dict[str, dict[str, Any]] = {}
     for subject, endpoint in routes.items():
         if getattr(endpoint, "include_schema", None) and isinstance(endpoint, Request):
             result = generate_asyncapi_request_channel(endpoint, model_name_map)
@@ -223,7 +221,7 @@ def get_asyncapi(
         subjects[channel] = operation
 
     info["description"] = description if description else None
-    output: Dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
+    output: dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
     output["servers"] = servers if {n: s.dict() for n, s in servers.items()} else None
 
     output["externalDocs"] = external_docs.dict() if external_docs else None

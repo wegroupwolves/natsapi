@@ -1,44 +1,36 @@
-from typing_extensions import Annotated
+from collections.abc import Sequence
 from dataclasses import dataclass
-from natsapi.asyncapi.constants import REF_PREFIX
 from enum import Enum
 from functools import lru_cache
 from typing import (
+    Annotated,
     Any,
-    Optional,
     Literal,
-    Dict,
-    List,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
 )
+
 from pydantic import BaseModel
 from pydantic.version import VERSION as PYDANTIC_VERSION
+
+from natsapi.asyncapi.constants import REF_PREFIX
 
 PYDANTIC_VERSION_MINOR_TUPLE = tuple(int(x) for x in PYDANTIC_VERSION.split(".")[:2])
 PYDANTIC_V2 = PYDANTIC_VERSION_MINOR_TUPLE[0] == 2
 
-ModelNameMap = Dict[Union[Type[BaseModel], Type[Enum]], str]
+ModelNameMap = dict[type[BaseModel] | type[Enum], str]
 
 if PYDANTIC_V2:
-    from pydantic.fields import FieldInfo
+    from pydantic import (
+        RootModel,  # noqa
+        TypeAdapter,
+    )
     from pydantic import ValidationError as ValidationError
-    from pydantic import RootModel  # noqa
-    from pydantic_settings import BaseSettings
-
-    from pydantic.deprecated.json import ENCODERS_BY_TYPE
-
-    from pydantic import TypeAdapter
-
     from pydantic._internal._utils import lenient_issubclass as lenient_issubclass
-
-    from pydantic_core import PydanticUndefined, PydanticUndefinedType
-
+    from pydantic.deprecated.json import ENCODERS_BY_TYPE
+    from pydantic.fields import FieldInfo
     from pydantic.json_schema import GenerateJsonSchema as GenerateJsonSchema
     from pydantic.json_schema import JsonSchemaValue as JsonSchemaValue
+    from pydantic_core import PydanticUndefined, PydanticUndefinedType
+    from pydantic_settings import BaseSettings
 
     Undefined = PydanticUndefined
     UndefinedType = PydanticUndefinedType
@@ -48,7 +40,7 @@ if PYDANTIC_V2:
         field_info: FieldInfo
         name: str
         mode: Literal["validation", "serialization"] = "validation"
-        sub_fields: Optional[str] = None
+        sub_fields: str | None = None
 
         @property
         def alias(self) -> str:
@@ -78,10 +70,10 @@ if PYDANTIC_V2:
         def validate(
             self,
             value: Any,
-            values: Dict[str, Any] = {},  # noqa: B006
+            values: dict[str, Any] = {},  # noqa: B006
             *,
-            loc: Tuple[Union[int, str], ...] = (),
-        ) -> Tuple[Any, Union[List[Dict[str, Any]], None]]:
+            loc: tuple[int | str, ...] = (),
+        ) -> tuple[Any, list[dict[str, Any]] | None]:
             try:
                 return (
                     self._type_adapter.validate_python(value, from_attributes=True),
@@ -101,7 +93,6 @@ if PYDANTIC_V2:
             exclude_none: bool = False,
         ) -> Any:
             # What calls this code passes a value that already called
-            # self._type_adapter.validate_python(value)
             return self._type_adapter.dump_python(
                 value,
                 mode=mode,
@@ -116,49 +107,47 @@ if PYDANTIC_V2:
             # ModelField to its JSON Schema.
             return id(self)
 
-    def _normalize_errors(errors: Sequence[Any]) -> List[Dict[str, Any]]:
+    def _normalize_errors(errors: Sequence[Any]) -> list[dict[str, Any]]:
         return errors  # type: ignore[return-value]
 
-    def get_model_fields(model: Type[BaseModel]) -> List[ModelField]:
+    def get_model_fields(model: type[BaseModel]) -> list[ModelField]:
         return [ModelField(field_info=field_info, name=name) for name, field_info in model.model_fields.items()]
 
-    def get_compat_model_name_map(fields: List[ModelField]):
+    def get_compat_model_name_map(fields: list[ModelField]):
         return {}
 
     def get_definitions(
         *,
-        fields: List[ModelField],
+        fields: list[ModelField],
         schema_generator: GenerateJsonSchema,
         model_name_map: ModelNameMap,
         separate_input_output_schemas: bool = True,
-    ) -> Tuple[
-        Dict[Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
-        Dict[str, Dict[str, Any]],
+    ) -> tuple[
+        dict[tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
+        dict[str, dict[str, Any]],
     ]:
-        override_mode: Union[Literal["validation"], None] = None if separate_input_output_schemas else "validation"
+        override_mode: Literal["validation"] | None = None if separate_input_output_schemas else "validation"
         inputs = [(field, override_mode or field.mode, field._type_adapter.core_schema) for field in fields]
         field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
         return field_mapping, definitions  # type: ignore[return-value]
 
 else:
-    from pydantic.json import ENCODERS_BY_TYPE  # noqa: F401
-
-    from pydantic import BaseModel
-
-    from pydantic.fields import (  # type: ignore[no-redef,attr-defined]
-        ModelField as ModelField,  # noqa: F401
+    from pydantic import (
+        BaseModel,
+        BaseSettings,  # noqa: F401
     )
     from pydantic.error_wrappers import (  # type: ignore[no-redef]
         ErrorWrapper as ErrorWrapper,  # noqa: F401
     )
-    from pydantic import BaseSettings  # noqa: F401
-
+    from pydantic.fields import (  # type: ignore[no-redef,attr-defined]
+        ModelField as ModelField,  # noqa: F401
+    )
+    from pydantic.json import ENCODERS_BY_TYPE  # noqa: F401
     from pydantic.schema import (
         get_flat_models_from_fields,
         get_model_name_map,
         model_process_schema,
     )
-
     from pydantic.utils import (  # noqa
         lenient_issubclass as lenient_issubclass,  # noqa: F401
     )
@@ -167,15 +156,15 @@ else:
         __root__: str
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]
-    JsonSchemaValue = Dict[str, Any]  # type: ignore[misc]
+    JsonSchemaValue = dict[str, Any]  # type: ignore[misc]
     CoreSchema = Any  # type: ignore[assignment,misc]
 
     @dataclass
     class GenerateJsonSchema:  # type: ignore[no-redef]
         ref_template: str
 
-    def _normalize_errors(errors: Sequence[Any]) -> List[Dict[str, Any]]:
-        use_errors: List[Any] = []
+    def _normalize_errors(errors: Sequence[Any]) -> list[dict[str, Any]]:
+        use_errors: list[Any] = []
         for error in errors:
             if isinstance(error, ErrorWrapper):
                 new_errors = ValidationError(errors=[error]).errors()  # type: ignore[call-arg]
@@ -186,22 +175,22 @@ else:
                 use_errors.append(error)
         return use_errors
 
-    def get_model_fields(model: Type[BaseModel]) -> List[ModelField]:
+    def get_model_fields(model: type[BaseModel]) -> list[ModelField]:
         return list(model.__fields__.values())  # type: ignore[attr-defined]
 
-    def get_compat_model_name_map(fields: List[ModelField]):
+    def get_compat_model_name_map(fields: list[ModelField]):
         models = get_flat_models_from_fields(fields, known_models=set())
         return get_model_name_map(models)  # type: ignore[no-any-return]
 
     def get_model_definitions(
         *,
-        flat_models: Set[Union[Type[BaseModel], Type[Enum]]],
-        model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-    ) -> Dict[str, Any]:
-        definitions: Dict[str, Dict[str, Any]] = {}
+        flat_models: set[type[BaseModel] | type[Enum]],
+        model_name_map: dict[type[BaseModel] | type[Enum], str],
+    ) -> dict[str, Any]:
+        definitions: dict[str, dict[str, Any]] = {}
         for model in flat_models:
             m_schema, m_definitions, m_nested_models = model_process_schema(
-                model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
+                model, model_name_map=model_name_map, ref_prefix=REF_PREFIX,
             )
             definitions.update(m_definitions)
             model_name = model_name_map[model]
@@ -212,22 +201,22 @@ else:
 
     def get_definitions(
         *,
-        fields: List[ModelField],
+        fields: list[ModelField],
         schema_generator: GenerateJsonSchema,
         model_name_map: ModelNameMap,
         separate_input_output_schemas: bool = True,
-    ) -> Tuple[
-        Dict[Tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
-        Dict[str, Dict[str, Any]],
+    ) -> tuple[
+        dict[tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
+        dict[str, dict[str, Any]],
     ]:
         models = get_flat_models_from_fields(fields, known_models=set())
         return {}, get_model_definitions(flat_models=models, model_name_map=model_name_map)
 
 
 def _regenerate_error_with_loc(
-    *, errors: Sequence[Any], loc_prefix: Tuple[Union[str, int], ...]
-) -> List[Dict[str, Any]]:
-    updated_loc_errors: List[Any] = [
+    *, errors: Sequence[Any], loc_prefix: tuple[str | int, ...],
+) -> list[dict[str, Any]]:
+    updated_loc_errors: list[Any] = [
         {**err, "loc": loc_prefix + err.get("loc", ())} for err in _normalize_errors(errors)
     ]
 
@@ -235,5 +224,5 @@ def _regenerate_error_with_loc(
 
 
 @lru_cache
-def get_cached_model_fields(model: Type[BaseModel]) -> List[ModelField]:
+def get_cached_model_fields(model: type[BaseModel]) -> list[ModelField]:
     return get_model_fields(model)

@@ -1,15 +1,12 @@
 """yanked from fastapi"""
-from natsapi._compat import RootModel
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
-from typing import Optional
 
 import pytest
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
-
-from pydantic import BaseModel, Field, ValidationError, create_model, ConfigDict
-
+from natsapi._compat import RootModel
 from natsapi.encoders import jsonable_encoder
 
 
@@ -47,7 +44,7 @@ class ModelWithCustomEncoder(BaseModel):
     dt_field: datetime
 
     class Config:
-        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=timezone.utc).isoformat()}
+        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=UTC).isoformat()}
 
 
 class ModelWithCustomEncoderSubclass(ModelWithCustomEncoder):
@@ -61,7 +58,7 @@ class RoleEnum(Enum):
 
 
 class ModelWithConfig(BaseModel):
-    role: Optional[RoleEnum] = None
+    role: RoleEnum | None = None
 
     class Config:
         use_enum_values = True

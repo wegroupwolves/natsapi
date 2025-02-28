@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from natsapi.models import JsonRPCReply, JsonRPCRequest
-from natsapi.context import CTX_JSONRPC_ID
 
 from natsapi import NatsAPI, SubjectRouter
+from natsapi.context import CTX_JSONRPC_ID
 from natsapi.exceptions import JsonRPCException
+from natsapi.models import JsonRPCReply, JsonRPCRequest
 
 
 class StatusResult(BaseModel):
@@ -156,7 +156,7 @@ async def test_skip_validation_should_pass_original_dict_in_validator_and_have_m
     assert "dict" in reply.result["status"]
 
     schema = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
-    assert "SomeParams" in schema["components"]["schemas"].keys()
+    assert "SomeParams" in schema["components"]["schemas"]
 
 
 async def test_each_nats_request_should_have_different_id(app, natsapi_mock):

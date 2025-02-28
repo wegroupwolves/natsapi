@@ -1,5 +1,6 @@
-from natsapi import NatsAPI, SubjectRouter
 from pydantic import BaseModel
+
+from natsapi import NatsAPI, SubjectRouter
 
 
 class Message(BaseModel):

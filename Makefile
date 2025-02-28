@@ -20,10 +20,7 @@ testr: ## Run tests with entr
 	find natsapi tests | entr -r poetry run pytest --disable-warnings -vvvx
 
 lint: ## Lint checks
-	poetry run flake8 .
-
-isort: ## Sort checks
-	poetry run isort
+	poetry run ruff check .
 
 format: ## Format checks
 	poetry run black .

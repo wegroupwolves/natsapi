@@ -25,15 +25,14 @@ pre-commit = "^2.12.1"
 
 [tool.poetry.group.test.dependencies]
 pytest-cov = "^2.11.1"
-coverage = "5.5"
-black = "^22.3.0"
-flake9 = "^3.8.3"
-isort = "^5.8.0"
+black = "^24.10.0"
 bandit = "^1.7.0"
 piprot = "^0.9.11"
 safety = "^1.10.3"
 pytest-asyncio = "^0.17.2"
-vulture = "^2.3"
+vulture = "^2.13"
+ruff = "^0.7.4"
+
 
 [tool.poetry.plugins."pytest11"]
 natsapi = "natsapi.plugin"
@@ -48,16 +47,18 @@ testpaths = [
 requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.isort]
-profile = "black"
-lines_between_types = 2
-combine_as_imports = true
-line_length = 120
-multi_line_output = 3
+[tool.ruff]
+line-length = 120
+exclude = ["scripts"]
+target-version = "py312"
 
-[tool.flake8]
-ignore = "F722,W503,E501,E741,W605,E203,C901,F541,E133"
-max-line-length = 120
+[tool.ruff.lint]
+extend-select = ["C90", "I", "B", "Q", "UP", "S", "COM", "C4", "T10", "SIM", "TID", "PTH", "ERA", "ASYNC"]
+# ignore = ["F722", "E501","E741","W605","C901","F541","F811", "B026", "S101", "S104", "S105", "S106", "S113", "B008", "UP007", "UP008", "UP038"]
+# ignore = ["F722", "E501","E741","W605","C901","F541","F811", "B026", "S101", "S104", "S105", "S106", "S113", "B008", "UP007", "UP008", "UP038"]
+unfixable = ["B", "F811"]
+
+[tool.ruff.lint.mccabe]
 max-complexity = 25
 
 [tool.black]
