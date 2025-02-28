@@ -26,7 +26,6 @@ from natsapi.asyncapi.constants import REF_PREFIX, REF_TEMPLATE
 from natsapi.encoders import jsonable_encoder
 from natsapi.models import JsonRPCError
 from natsapi.routing import Pub, Publish, Request, Sub
-from natsapi.utils import get_model_definitions
 
 from . import Errors, ExternalDocumentation, Server
 from .models import AsyncAPI
@@ -36,15 +35,14 @@ def _get_flat_fields_from_params(fields: List[ModelField]) -> List[ModelField]:
     if not fields:
         return fields
     first_field = fields[0]
+
     if len(fields) == 1 and lenient_issubclass(first_field.type_, BaseModel):
         fields_to_extract = get_cached_model_fields(first_field.type_)
         return fields_to_extract
     return fields
 
 
-def get_flat_models_from_routes(
-    routes: Sequence[Request], pubs: Sequence[Pub]
-) -> Set[Union[Type[BaseModel], Type[Enum]]]:
+def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Set[Union[Type[BaseModel], Type[Enum]]]:
     replies_from_routes: Set[ModelField] = set()
     requests_from_routes: Set[ModelField] = set()
     messages_from_pubs: Set[ModelField] = set()
@@ -60,10 +58,9 @@ def get_flat_models_from_routes(
     for pub in pubs:
         messages_from_pubs.add(pub.params_field)
 
-    inputs = replies_from_routes | requests_from_routes | messages_from_pubs
+    fields = replies_from_routes | requests_from_routes | messages_from_pubs
 
-    flat_models = _get_flat_fields_from_params([x for x in inputs])
-    return flat_models
+    return fields
 
 
 def get_flat_response_models(r) -> List[Type[BaseModel]]:
@@ -204,13 +201,13 @@ def get_asyncapi(
 
     output: Dict[str, Any] = {"asyncapi": asyncapi_version, "info": info}
 
-    flat_models = get_flat_models_from_routes(routes.values(), pubs)
-    model_name_map = get_compat_model_name_map(flat_models)
+    all_fields = get_fields_from_routes(routes.values(), pubs)
+    model_name_map = get_compat_model_name_map(all_fields)
     schema_generator = GenerateJsonSchema(ref_template=REF_TEMPLATE)
 
     # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Where to use the first paramter (see https://github.com/fastapi/fastapi/blob/master/fastapi/openapi/utils.py#L493)
     _, definitions = get_definitions(
-        fields=flat_models, schema_generator=schema_generator, model_name_map=model_name_map
+        fields=all_fields, schema_generator=schema_generator, model_name_map=model_name_map
     )
     definitions[JsonRPCError.__name__] = JsonRPCError.schema()
     components["schemas"] = definitions
