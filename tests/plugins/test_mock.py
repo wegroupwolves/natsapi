@@ -59,7 +59,7 @@ async def test_nats_mock_should_raise_error_when_invalid_error_response(app, nat
     reply = await app.nc.request(f"{ch}.items.retrieve", timeout=1)
 
     # then:
-    assert "value is not a valid dict" in reply.error.message
+    assert "valid dict" in reply.error.message
 
 
 async def test_be_able_to_intercept_nats_publish_event_payload(app, natsapi_mock):

@@ -1,26 +1,32 @@
-{pkgs ? import <nixpkgs> {} }:
+let
+  pkgs = import <nixpkgs> {};
+in pkgs.mkShell {
+    shellHook = ''
+        export PIP_NO_BINARY="ruff"
+        set -a; source .env; set +a
+        echo "SHELLHOOK LOG: .env loaded to ENV variables"
+    '';
 
-pkgs.mkShell {
-    packages = [
-        pkgs.python311
+    packages = with pkgs; [
+        python311
 
-        (pkgs.poetry.override { python3 = pkgs.python311; })
+        ruff
+        rustc
+        cargo
 
-        (pkgs.python311.withPackages (p: with p; [
+        (poetry.override { python3 = python311; })
+
+        (python311.withPackages (p: with p; [
             pip
             python-lsp-server
             pynvim
             pyls-isort
             python-lsp-black
         ]))
+
     ];
 
-    LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [
-        pkgs.stdenv.cc.cc
-    ]}";
-
-    shellHook = ''
-        set -a; source .env; set +a
-        echo "SHELLHOOK LOG: .env loaded to ENV variables"
-    '';
+    env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+        pkgs.stdenv.cc.cc.lib
+    ];
 }

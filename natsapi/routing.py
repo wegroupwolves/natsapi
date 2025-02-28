@@ -1,7 +1,6 @@
 import inspect
-
-
-from typing import Any, Callable, List, Optional, Set, Type
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -16,14 +15,14 @@ class Request:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
-        suggested_timeout: Optional[float] = None,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
+        suggested_timeout: float | None = None,
     ):
         self.subject = subject
         self.endpoint = endpoint
@@ -53,12 +52,12 @@ class Publish:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
     ):
         self.subject = subject
         self.endpoint = endpoint
@@ -83,11 +82,11 @@ class Sub:
         self,
         subject: str,
         *,
-        queue: Optional[str] = None,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        queue: str | None = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ):
 
         self.subject = subject
@@ -104,10 +103,10 @@ class Pub:
         subject: str,
         params: BaseModel,
         *,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ):
         self.subject = subject
         self.summary = summary
@@ -123,18 +122,18 @@ class SubjectRouter:
         self,
         *,
         prefix: str = None,
-        tags: Optional[List[str]] = None,
-        routes: Optional[List[Request]] = None,
-        subs: Optional[Set[Sub]] = None,
-        pubs: Optional[Set[Pub]] = None,
-        deprecated: Optional[bool] = None,
+        tags: list[str] | None = None,
+        routes: list[Request] | None = None,
+        subs: set[Sub] | None = None,
+        pubs: set[Pub] | None = None,
+        deprecated: bool | None = None,
         include_in_schema: bool = True,
     ) -> None:
         self.prefix = prefix
         self.routes = routes or []
         self.pubs = pubs or set()
         self.subs = subs or set()
-        self.tags: List[str] = tags or []
+        self.tags: list[str] = tags or []
         self.deprecated = deprecated
         self.include_in_schema = include_in_schema
 
@@ -143,14 +142,14 @@ class SubjectRouter:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        suggested_timeout: Optional[float] = None,
-        include_schema: Optional[bool] = True,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        suggested_timeout: float | None = None,
+        include_schema: bool | None = True,
     ) -> None:
         current_tags = self.tags.copy()
         if tags:
@@ -175,12 +174,12 @@ class SubjectRouter:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
     ) -> None:
         current_tags = self.tags.copy()
         if tags:
@@ -202,14 +201,14 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        suggested_timeout: Optional[float] = None,
-        include_schema: Optional[bool] = True,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        suggested_timeout: float | None = None,
+        include_schema: bool | None = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_request(
@@ -232,13 +231,13 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_publish(
@@ -260,10 +259,10 @@ class SubjectRouter:
         subject: str,
         params: BaseModel,
         *,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> None:
         """
         Include pub in asyncapi schema
@@ -282,11 +281,11 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        params=Type[Any],
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        params=type[Any],
+        description: str | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_pub(
@@ -305,11 +304,11 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        queue: Optional[str] = None,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        queue: str | None = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> None:
         """
         Include sub in asyncapi schema
@@ -328,11 +327,11 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        queue: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        queue: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_sub(

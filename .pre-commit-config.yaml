@@ -1,63 +1,33 @@
 exclude: ^(blib2to3/|profiling/|tests/data/|\.mypy/|\.tox/)
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v2.1.0
+-   repo: git@github.com:pre-commit/pre-commit-hooks
+    rev: v4.4.0
     hooks:
-      - id: detect-private-key
-      - id: requirements-txt-fixer
-      - id: check-case-conflict
-      - id: check-json
-      - id: debug-statements
-      - id: check-merge-conflict
-      - id: check-symlinks
-      - id: end-of-file-fixer
-      - id: pretty-format-json
+    -   id: requirements-txt-fixer
+    -   id: check-case-conflict
+    -   id: check-json
+    -   id: debug-statements
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: end-of-file-fixer
+    -   id: check-added-large-files
+    -   id: check-toml
+    -   id: trailing-whitespace
+    -   id: pretty-format-json
         args:
-          - --autofix
-      - id: trailing-whitespace
-  - repo: local
+        - --autofix
+    -   id: trailing-whitespace
+-   repo: local
     hooks:
-      - id: black
-        args: ["-S", "-l", "120"]
-        name: black
-        language: system
-        entry: black
-        types: [python]
-      - id: flake8
-        args: ["--ignore", "F722,W503,E501,E741,W605,E203,C901,F541", "."]
-        name: flake8
-        language: system
-        entry: flake8
-        types: [python]
-  - repo: https://github.com/humitos/mirrors-autoflake.git
-    rev: v1.1
+    - id: black
+      name: black
+      language: system
+      entry: black
+      types: [python]
+
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.254
     hooks:
-      - id: autoflake
+    -   id: ruff
         args:
-          [
-            "--in-place",
-            "--remove-all-unused-imports",
-            "--remove-unused-variable",
-          ]
-  - repo: https://github.com/timothycrosley/isort.git
-    rev: 5.1.4
-    hooks:
-      - id: isort
-        args:
-          [
-            "--multi-line=3",
-            "--trailing-comma",
-            "--force-grid-wrap=0",
-            "--combine-as",
-            "--line-width",
-            "120",
-            "--apply",
-            "--thirdparty",
-            "pydantic",
-            "natsapi",
-          ]
-        name: isort
-        entry: isort
-        require_serial: true
-        language: python
-        types: [python]
+        - --fix

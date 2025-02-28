@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
@@ -12,11 +12,12 @@ from nats.aio.client import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
 )
-from pydantic import BaseSettings
+
+from natsapi._compat import BaseSettings
 
 
 class ConnectConfig(BaseSettings):
-    servers: Union[str, List[str]] = ["nats://127.0.0.1:4222"]
+    servers: str | list[str] = ["nats://127.0.0.1:4222"]
     error_cb: Any = None
     closed_cb: Any = None
     reconnected_cb: Any = None
@@ -43,8 +44,8 @@ class ConnectConfig(BaseSettings):
     signature_cb: Any = None
     user_jwt_cb: Any = None
     user_credentials: Any = None
-    nkeys_seed: str = None
-    flush_timeout: Optional[float] = None
+    nkeys_seed: str | None = None
+    flush_timeout: float | None = None
     pending_size: int = DEFAULT_PENDING_SIZE
 
 

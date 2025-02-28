@@ -1,5 +1,6 @@
-from natsapi import NatsAPI
 import asyncio
+
+from natsapi import NatsAPI
 
 
 async def main():

@@ -1,9 +1,8 @@
 import asyncio
 import inspect
 import signal
-
-
-from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
@@ -20,27 +19,22 @@ from natsapi.state import State
 from natsapi.types import DecoratedCallable
 
 
-class NatsAPI(object):
+class NatsAPI:
     def __init__(
         self,
         root_path: str,
         *,
         app: Any = None,
-        client_config: Optional[Config] = None,
-        rpc_methods: Optional[List[str]] = None,
-        exception_handlers: Optional[
-            Dict[
-                Type[Exception],
-                Callable[[Type[Exception]], JsonRPCException],
-            ]
-        ] = None,
+        client_config: Config | None = None,
+        rpc_methods: list[str] | None = None,
+        exception_handlers: dict[type[Exception], Callable[[type[Exception]], JsonRPCException]] | None = None,
         title: str = "NatsAPI",
         version: str = "0.1.0",
         description: str = None,
-        tags: Optional[List[Dict[str, Any]]] = None,
-        servers: Optional[Dict[str, Union[str, Any]]] = None,
-        domain_errors: Optional[Dict[str, Any]] = None,
-        external_docs: Optional[Dict[str, Any]] = None,
+        tags: list[dict[str, Any]] | None = None,
+        servers: dict[str, str | Any] | None = None,
+        domain_errors: dict[str, Any] | None = None,
+        external_docs: dict[str, Any] | None = None,
     ):
         """
         Parameters
@@ -48,7 +42,7 @@ class NatsAPI(object):
         root_path: str The path that every application-specific subject
         app: FastAPI Must be a FastAPI instance or None. If none the app is the NatsAPI instance itself
         """
-        self.routes: Dict[str, Request] = {}
+        self.routes: dict[str, Request] = {}
         self.root_path = root_path
         self._root_paths = [root_path]
         self.rpc_methods = rpc_methods if rpc_methods else None
@@ -60,15 +54,15 @@ class NatsAPI(object):
         self.asyncapi_tags = tags or []
         self.asyncapi_version = "2.0.0"
         self.domain_errors: Errors = domain_errors
-        self.asyncapi_schema: Optional[Dict[str, Any]] = None
+        self.asyncapi_schema: dict[str, Any] | None = None
         self.nc: NatsClient = None
-        self.subs: Set[Sub] = set()
-        self.pubs: Set[Pub] = set()
+        self.subs: set[Sub] = set()
+        self.pubs: set[Pub] = set()
         self.state = State()
         self._on_startup_method = None
         self._on_shutdown_method = None
         self.client_config = client_config or default_config
-        self._exception_handlers: Dict[Type[Exception], Callable[[Type[Exception]], JsonRPCException]] = (
+        self._exception_handlers: dict[type[Exception], Callable[[type[Exception]], JsonRPCException]] = (
             {} if exception_handlers is None else dict(exception_handlers)
         )
         self._exception_handlers.setdefault(JsonRPCException, handle_jsonrpc_exception)
@@ -97,7 +91,7 @@ class NatsAPI(object):
     async def __aexit__(self, *args):
         await self.shutdown()
 
-    def include_router(self, router: Type[SubjectRouter], root_path: str = None) -> None:
+    def include_router(self, router: type[SubjectRouter], root_path: str = None) -> None:
         current_root_path = root_path or self.root_path
         if current_root_path not in self._root_paths:
             self._root_paths.append(current_root_path)
@@ -117,7 +111,7 @@ class NatsAPI(object):
         self.subs = self.subs | router.subs
         self.pubs = self.pubs | router.pubs
 
-    def generate_asyncapi(self) -> Dict[str, Any]:
+    def generate_asyncapi(self) -> dict[str, Any]:
         if not self.asyncapi_schema:
             self.asyncapi_schema = get_asyncapi(
                 title=self.title,
@@ -133,7 +127,7 @@ class NatsAPI(object):
             )
         return self.asyncapi_schema
 
-    def _add_asyncapi_route(self) -> Dict[str, Any]:
+    def _add_asyncapi_route(self) -> dict[str, Any]:
         """
         Adds default route to retrieve the asyncapi schema.
         """
@@ -156,7 +150,7 @@ class NatsAPI(object):
             self._listen_to_signals()
 
         self.nc = NatsClient(
-            self.routes, app=self.app, config=self.client_config, exception_handlers=self._exception_handlers
+            self.routes, app=self.app, config=self.client_config, exception_handlers=self._exception_handlers,
         )
         await self.nc.connect()
         logger.info("Connected to NATS server")
@@ -170,7 +164,7 @@ class NatsAPI(object):
         for path in self._root_paths:
             sub_path = ".".join([path, ">"])
             await self.nc.root_path_subscribe(
-                sub_path, cb=self.nc.handle_request, queue=self.client_config.subscribe.queue
+                sub_path, cb=self.nc.handle_request, queue=self.client_config.subscribe.queue,
             )
             self.include_subs(
                 [
@@ -179,8 +173,8 @@ class NatsAPI(object):
                         queue=self.client_config.subscribe.queue,
                         summary=f"Sub to root path {sub_path}",
                         tags=["automatic subs"],
-                    )
-                ]
+                    ),
+                ],
             )
             logger.info(f"Subscribed to {sub_path}")
         self._add_asyncapi_route()
@@ -229,14 +223,14 @@ class NatsAPI(object):
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        suggested_timeout: Optional[float] = None,
-        include_schema: Optional[bool] = True,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        suggested_timeout: float | None = None,
+        include_schema: bool | None = True,
     ) -> None:
         request = Request(
             subject=subject,
@@ -266,12 +260,12 @@ class NatsAPI(object):
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
     ) -> None:
         publish = Publish(
             subject=subject,
@@ -298,14 +292,14 @@ class NatsAPI(object):
         self,
         subject: str,
         *,
-        result=Type[Any],
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        suggested_timeout: Optional[float] = None,
-        include_schema: Optional[bool] = True,
+        result=type[Any],
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        suggested_timeout: float | None = None,
+        include_schema: bool | None = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_request(
@@ -328,12 +322,12 @@ class NatsAPI(object):
         self,
         subject: str,
         *,
-        skip_validation: Optional[bool] = False,
-        description: Optional[str] = None,
-        deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        include_schema: Optional[bool] = True,
+        skip_validation: bool | None = False,
+        description: str | None = None,
+        deprecated: bool | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        include_schema: bool | None = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_publish(
@@ -355,10 +349,10 @@ class NatsAPI(object):
         subject: str,
         params: BaseModel,
         *,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> None:
         """
         Include pub in asyncapi schema
@@ -377,11 +371,11 @@ class NatsAPI(object):
         self,
         subject: str,
         *,
-        params=Type[Any],
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        params=type[Any],
+        description: str | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_pub(
@@ -396,7 +390,7 @@ class NatsAPI(object):
 
         return decorator
 
-    def include_subs(self, subs: List[Sub]):
+    def include_subs(self, subs: list[Sub]):
         for sub in subs:
             self.subs.add(sub)
 
@@ -404,11 +398,11 @@ class NatsAPI(object):
         self,
         subject: str,
         *,
-        queue: Optional[str] = None,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        queue: str | None = None,
+        summary: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> None:
         """
         Include sub in asyncapi schema
@@ -427,11 +421,11 @@ class NatsAPI(object):
         self,
         subject: str,
         *,
-        queue: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        summary: Optional[str] = None,
-        externalDocs: Optional[ExternalDocumentation] = None,
+        queue: str | None = None,
+        description: str | None = None,
+        tags: list[str] | None = None,
+        summary: str | None = None,
+        externalDocs: ExternalDocumentation | None = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_sub(
@@ -446,18 +440,18 @@ class NatsAPI(object):
 
         return decorator
 
-    def include_pubs(self, pubs: List[Pub]):
+    def include_pubs(self, pubs: list[Pub]):
         for pub in pubs:
             self.pubs.add(pub)
 
     def add_exception_handler(
         self,
-        exc_class: Type[Exception],
+        exc_class: type[Exception],
         handler: Callable[[Exception], JsonRPCException],
     ) -> None:
         self._exception_handlers[exc_class] = handler
 
-    def exception_handler(self, exc_class: Type[Exception]) -> Callable:
+    def exception_handler(self, exc_class: type[Exception]) -> Callable:
         def decorator(func: Callable[[Exception], JsonRPCException]) -> Callable:
             self.add_exception_handler(exc_class, func)
             return func

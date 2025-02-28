@@ -1,14 +1,12 @@
 """yanked from fastapi"""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
-from typing import Optional
 
 import pytest
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
-
-from pydantic import BaseModel, Field, ValidationError, create_model
-
+from natsapi._compat import RootModel
 from natsapi.encoders import jsonable_encoder
 
 
@@ -46,7 +44,7 @@ class ModelWithCustomEncoder(BaseModel):
     dt_field: datetime
 
     class Config:
-        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=timezone.utc).isoformat()}
+        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=UTC).isoformat()}
 
 
 class ModelWithCustomEncoderSubclass(ModelWithCustomEncoder):
@@ -60,7 +58,7 @@ class RoleEnum(Enum):
 
 
 class ModelWithConfig(BaseModel):
-    role: Optional[RoleEnum] = None
+    role: RoleEnum | None = None
 
     class Config:
         use_enum_values = True
@@ -76,8 +74,8 @@ class ModelWithDefault(BaseModel):
     bla: str = "bla"
 
 
-class ModelWithRoot(BaseModel):
-    __root__: str
+class ModelWithRoot(RootModel):
+    pass
 
 
 @pytest.fixture(name="model_with_path", params=[PurePath, PurePosixPath, PureWindowsPath])
@@ -150,6 +148,7 @@ def test_custom_encoders():
         pass
 
     class MyModel(BaseModel):
+        model_config = ConfigDict(arbitrary_types_allowed=True)
         dt_field: safe_datetime
 
     instance = MyModel(dt_field=safe_datetime.now())
@@ -159,10 +158,7 @@ def test_custom_encoders():
 
 
 def test_encode_model_with_path(model_with_path):
-    if isinstance(model_with_path.path, PureWindowsPath):
-        expected = "\\foo\\bar"
-    else:
-        expected = "/foo/bar"
+    expected = "\\foo\\bar" if isinstance(model_with_path.path, PureWindowsPath) else "/foo/bar"
     assert jsonable_encoder(model_with_path) == {"path": expected}
 
 

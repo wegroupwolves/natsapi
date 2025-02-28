@@ -1,16 +1,13 @@
 import asyncio
 import json
 import os
-
-
 from collections import defaultdict
-from typing import Any, Dict, Tuple
+from typing import Any
 from uuid import uuid4
 
 import pytest
-
-
-from nats.aio.client import Client as NATS, Msg
+from nats.aio.client import Client as NATS
+from nats.aio.client import Msg
 
 from natsapi.exceptions import JsonRPCUnknownMethodException
 from natsapi.models import JsonRPCReply
@@ -42,9 +39,9 @@ class NatsapiMock:
     def __init__(self, host: str) -> None:
         self.host = host
         self.nats: NATS = NATS()
-        self.subjects: Dict[str, Tuple[Any, Any]] = {}
-        self.responses: Dict[str, Tuple[Any, Any]] = {}
-        self.payloads: Dict[str, Any] = defaultdict(list)
+        self.subjects: dict[str, tuple[Any, Any]] = {}
+        self.responses: dict[str, tuple[Any, Any]] = {}
+        self.payloads: dict[str, Any] = defaultdict(list)
 
     async def lifespan(self) -> None:
         await self.nats.connect(self.host, verbose=True, ping_interval=5)
@@ -76,7 +73,7 @@ class NatsapiMock:
         if message.reply:
             await self.nats.publish(message.reply, response.json().encode())
 
-    async def request(self, subject: str, *, response: Any = None, error: Dict[str, Any] = None) -> None:
+    async def request(self, subject: str, *, response: Any = None, error: dict[str, Any] = None) -> None:
         assert response or error, "Need a response of an error"
         self.responses[subject] = response, error
         await self.nats.subscribe(subject, cb=self.handle)

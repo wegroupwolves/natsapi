@@ -1,7 +1,7 @@
 import typing
 
 
-class State(object):
+class State:
     """
     Yanked from starlette.datascructures
 
@@ -10,7 +10,7 @@ class State(object):
     Used for `app.state`.
     """
 
-    def __init__(self, state: typing.Dict = None):
+    def __init__(self, state: dict = None):
         if state is None:
             state = {}
         super(State, self).__setattr__("_state", state)
@@ -21,9 +21,9 @@ class State(object):
     def __getattr__(self, key: typing.Any) -> typing.Any:
         try:
             return self._state[key]
-        except KeyError:
+        except KeyError as e:
             message = "'{}' object has no attribute '{}'"
-            raise AttributeError(message.format(self.__class__.__name__, key))
+            raise AttributeError(message.format(self.__class__.__name__, key)) from e
 
     def __delattr__(self, key: typing.Any) -> None:
         del self._state[key]
