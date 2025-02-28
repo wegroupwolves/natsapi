@@ -19,7 +19,7 @@ class FastAPI(BaseModel):
 async def test_method_parameters_should_get_parsed_to_correct_typing(app):
     class ThemesCreateCmd(BaseModel):
         primary: str
-        color: typing.Optional[str]
+        color: typing.Optional[str] | None = None
 
     @app.request("themes.CREATE", result=StatusResult)
     async def create_theme(app, data: ThemesCreateCmd):

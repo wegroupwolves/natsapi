@@ -14,14 +14,6 @@ from natsapi._compat import (
     GenerateJsonSchema,
 )
 
-# from pydantic.schema import get_flat_models_from_fields, get_model_name_map
-from pydantic.v1.schema import (
-    get_flat_models_from_fields,
-    get_model_name_map,
-    get_flat_models_from_field,
-    get_flat_models_from_model,
-)
-
 from natsapi.asyncapi.constants import REF_PREFIX, REF_TEMPLATE
 from natsapi.encoders import jsonable_encoder
 from natsapi.models import JsonRPCError
@@ -212,16 +204,14 @@ def get_asyncapi(
     definitions[JsonRPCError.__name__] = JsonRPCError.schema()
     components["schemas"] = definitions
 
-    # if bool(flat_models):
-    if 1:
-        subjects: Dict[str, Dict[str, Any]] = {}
-        for subject, endpoint in routes.items():
-            if getattr(endpoint, "include_schema", None) and isinstance(endpoint, Request):
-                result = generate_asyncapi_request_channel(endpoint, model_name_map)
-                subjects[subject] = result
-            elif getattr(endpoint, "include_schema", None) and isinstance(endpoint, Publish):
-                result = generate_asyncapi_publish_channel(endpoint, model_name_map)
-                subjects[subject] = result
+    subjects: Dict[str, Dict[str, Any]] = {}
+    for subject, endpoint in routes.items():
+        if getattr(endpoint, "include_schema", None) and isinstance(endpoint, Request):
+            result = generate_asyncapi_request_channel(endpoint, model_name_map)
+            subjects[subject] = result
+        elif getattr(endpoint, "include_schema", None) and isinstance(endpoint, Publish):
+            result = generate_asyncapi_publish_channel(endpoint, model_name_map)
+            subjects[subject] = result
 
     for sub in subs:
         channel, operation = get_sub_operation_schema(sub)

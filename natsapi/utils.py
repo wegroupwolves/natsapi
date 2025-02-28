@@ -1,5 +1,4 @@
 import collections
-import functools
 import inspect
 import re
 
@@ -42,7 +41,6 @@ def create_field(
     class_validators: Optional[Dict[str, Any]] = None,
     model_config: Type[BaseConfig] = BaseConfig,
     field_info: Optional[FieldInfo] = None,
-
     # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Might fix the defaults?
     # default: Optional[Any] = Undefined,
     # alias: Optional[str] = None,
@@ -55,9 +53,7 @@ def create_field(
     class_validators = class_validators or {}
 
     if PYDANTIC_V2:
-        field_info = field_info or FieldInfo(
-            annotation=type_
-        )
+        field_info = field_info or FieldInfo(annotation=type_)
     else:
         field_info = field_info or FieldInfo()
 

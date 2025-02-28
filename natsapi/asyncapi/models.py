@@ -124,7 +124,7 @@ class CorrelationId(BaseModel):
 
 
 class MessageTrait(BaseModel):
-    headers: Optional[Union[Schema, Reference]] 
+    headers: Optional[Union[Schema, Reference]]
     correlationId: Optional[Union[CorrelationId, Reference]]
     schemaFormat: Optional[str]
     contentType: Optional[str]

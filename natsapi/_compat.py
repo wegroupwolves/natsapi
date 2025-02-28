@@ -1,27 +1,21 @@
-from collections import deque
-from typing_extensions import Annotated, Literal, get_args, get_origin
-from copy import copy
-from dataclasses import dataclass, is_dataclass
-from natsapi.asyncapi.constants import REF_PREFIX, REF_TEMPLATE
+from typing_extensions import Annotated
+from dataclasses import dataclass
+from natsapi.asyncapi.constants import REF_PREFIX
 from enum import Enum
 from functools import lru_cache
 from typing import (
     Any,
     Optional,
-    Callable,
     Literal,
-    Deque,
     Dict,
-    FrozenSet,
     List,
-    Mapping,
     Sequence,
     Set,
     Tuple,
     Type,
     Union,
 )
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 from pydantic.version import VERSION as PYDANTIC_VERSION
 
 PYDANTIC_VERSION_MINOR_TUPLE = tuple(int(x) for x in PYDANTIC_VERSION.split(".")[:2])
@@ -32,15 +26,16 @@ ModelNameMap = Dict[Union[Type[BaseModel], Type[Enum]], str]
 if PYDANTIC_V2:
     from pydantic.fields import FieldInfo
     from pydantic import ValidationError as ValidationError
-    from pydantic.deprecated.json import ENCODERS_BY_TYPE
-    from pydantic_settings import BaseSettings
     from pydantic import RootModel  # noqa
+    from pydantic_settings import BaseSettings
+
+    from pydantic.deprecated.json import ENCODERS_BY_TYPE
+
     from pydantic import TypeAdapter
 
-    from pydantic import BaseConfig
+    from pydantic._internal._utils import lenient_issubclass as lenient_issubclass
 
     from pydantic_core import PydanticUndefined, PydanticUndefinedType
-    from pydantic._internal._utils import lenient_issubclass as lenient_issubclass
 
     from pydantic.json_schema import GenerateJsonSchema as GenerateJsonSchema
     from pydantic.json_schema import JsonSchemaValue as JsonSchemaValue
@@ -53,11 +48,7 @@ if PYDANTIC_V2:
         field_info: FieldInfo
         name: str
         mode: Literal["validation", "serialization"] = "validation"
-        # required: bool
         sub_fields: Optional[str] = None
-        # type_: Any
-        # class_validators: Optional[Dict[str, Any]] = None
-        # model_config: Type[BaseConfig] = BaseConfig
 
         @property
         def alias(self) -> str:
@@ -151,7 +142,7 @@ if PYDANTIC_V2:
 
 else:
     from pydantic.json import ENCODERS_BY_TYPE  # noqa: F401
-    from pydantic import BaseSettings  # noqa
+
     from pydantic import BaseModel
 
     from pydantic.fields import (  # type: ignore[no-redef,attr-defined]
@@ -160,16 +151,16 @@ else:
     from pydantic.error_wrappers import (  # type: ignore[no-redef]
         ErrorWrapper as ErrorWrapper,  # noqa: F401
     )
-
-    from pydantic.utils import (  # type: ignore[no-redef]
-        lenient_issubclass as lenient_issubclass,  # noqa: F401
-    )
+    from pydantic import BaseSettings  # noqa: F401
 
     from pydantic.schema import (
-        field_schema,
         get_flat_models_from_fields,
         get_model_name_map,
         model_process_schema,
+    )
+
+    from pydantic.utils import (  # noqa
+        lenient_issubclass as lenient_issubclass,  # noqa: F401
     )
 
     class RootModel(BaseModel):

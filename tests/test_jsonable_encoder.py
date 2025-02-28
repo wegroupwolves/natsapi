@@ -8,7 +8,7 @@ from typing import Optional
 import pytest
 
 
-from pydantic import BaseModel, Field, ValidationError, create_model
+from pydantic import BaseModel, Field, ValidationError, create_model, ConfigDict
 
 from natsapi.encoders import jsonable_encoder
 
@@ -151,6 +151,7 @@ def test_custom_encoders():
         pass
 
     class MyModel(BaseModel):
+        model_config = ConfigDict(arbitrary_types_allowed=True)
         dt_field: safe_datetime
 
     instance = MyModel(dt_field=safe_datetime.now())

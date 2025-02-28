@@ -14,10 +14,8 @@ Pypi = "https://pypi.org/project/natsapi/"
 [tool.poetry.build]
 generate-setup-file = false
 
-# Requirements
 [tool.poetry.dependencies]
 python = "^3.9"
-
 pydantic = "^1.10.13"
 nats-py = {extras = ["nkeys"], version = "^2.2.0"}
 
