@@ -6,7 +6,7 @@
 PREFIX = /usr/local  # Default installation directory
 PYTEST_GENERAL_FLAGS := -vvvx --asyncio-mode=auto
 PYTEST_COV_FLAGS := --cov=natsapi --cov-append --cov-report=term-missing --cov-fail-under=92
-PYTEST_COV_ENV := COV_CORE_SOURCE=natsapi COV_CORE_CONFIG=.coveragerc
+PYTEST_COV_ENV := COV_CORE_SOURCE=natsapi COV_CORE_CONFIG=.coveragerc COV_CORE_DATAFILE=.coverage.eager
 
 ##---------- Build targets ----------------------------------------------------
 
