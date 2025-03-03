@@ -58,7 +58,7 @@ def create_field(
         return ModelField(**kwargs)
     except RuntimeError as e:
         raise NatsAPIError(
-            f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type"
+            f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type",
         ) from e
 
 
