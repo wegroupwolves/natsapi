@@ -197,7 +197,9 @@ def get_asyncapi(
 
     # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Where to use the first paramter (see https://github.com/fastapi/fastapi/blob/master/fastapi/openapi/utils.py#L493)
     _, definitions = get_definitions(
-        fields=all_fields, schema_generator=schema_generator, model_name_map=model_name_map,
+        fields=all_fields,
+        schema_generator=schema_generator,
+        model_name_map=model_name_map,
     )
     definitions[JsonRPCError.__name__] = JsonRPCError.schema()
     components["schemas"] = definitions

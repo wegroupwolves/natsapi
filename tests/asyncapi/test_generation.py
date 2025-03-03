@@ -97,7 +97,10 @@ def test_asyncapi_schema_generation_should_be_cached(monkeypatch):
 
 def test_asyncapi_schema_w_personal_title_should_generate():
     client = NatsAPI(
-        "natsapi.development", title="My Nats Client", description="This is my nats client", version="2.4.3",
+        "natsapi.development",
+        title="My Nats Client",
+        description="This is my nats client",
+        version="2.4.3",
     )
     client.generate_asyncapi()
     schema = client.asyncapi_schema

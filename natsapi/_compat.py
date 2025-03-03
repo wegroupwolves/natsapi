@@ -190,7 +190,9 @@ else:
         definitions: dict[str, dict[str, Any]] = {}
         for model in flat_models:
             m_schema, m_definitions, m_nested_models = model_process_schema(
-                model, model_name_map=model_name_map, ref_prefix=REF_PREFIX,
+                model,
+                model_name_map=model_name_map,
+                ref_prefix=REF_PREFIX,
             )
             definitions.update(m_definitions)
             model_name = model_name_map[model]
@@ -214,7 +216,9 @@ else:
 
 
 def _regenerate_error_with_loc(
-    *, errors: Sequence[Any], loc_prefix: tuple[str | int, ...],
+    *,
+    errors: Sequence[Any],
+    loc_prefix: tuple[str | int, ...],
 ) -> list[dict[str, Any]]:
     updated_loc_errors: list[Any] = [
         {**err, "loc": loc_prefix + err.get("loc", ())} for err in _normalize_errors(errors)

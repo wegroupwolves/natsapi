@@ -150,7 +150,10 @@ class NatsAPI:
             self._listen_to_signals()
 
         self.nc = NatsClient(
-            self.routes, app=self.app, config=self.client_config, exception_handlers=self._exception_handlers,
+            self.routes,
+            app=self.app,
+            config=self.client_config,
+            exception_handlers=self._exception_handlers,
         )
         await self.nc.connect()
         logger.info("Connected to NATS server")
@@ -164,7 +167,9 @@ class NatsAPI:
         for path in self._root_paths:
             sub_path = ".".join([path, ">"])
             await self.nc.root_path_subscribe(
-                sub_path, cb=self.nc.handle_request, queue=self.client_config.subscribe.queue,
+                sub_path,
+                cb=self.nc.handle_request,
+                queue=self.client_config.subscribe.queue,
             )
             self.include_subs(
                 [

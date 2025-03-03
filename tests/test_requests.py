@@ -83,6 +83,7 @@ async def test_payload_with_empty_request_method_and_method__in_subject_get_succ
     reply = await app.nc.request("natsapi.development.foo", {"foo": 1})
     assert reply.result["status"] == "OK"
 
+
 async def test_payload_with_empty_request_method_and_method__in_subject_get_successful_reply_with_return_model(app):
     @app.request(subject="foo")
     async def _(app, foo: int):

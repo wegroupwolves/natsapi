@@ -1,8 +1,7 @@
 from typing import Any
 
 
-class NatsAPIError(RuntimeError):
-    ...
+class NatsAPIError(RuntimeError): ...
 
 
 class DuplicateRouteException(NatsAPIError):

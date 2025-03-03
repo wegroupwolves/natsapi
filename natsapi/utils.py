@@ -57,7 +57,9 @@ def create_field(
     try:
         return ModelField(**kwargs)
     except RuntimeError as e:
-        raise NatsAPIError(f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type") from e
+        raise NatsAPIError(
+            f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type"
+        ) from e
 
 
 def get_model_definitions(
@@ -68,7 +70,9 @@ def get_model_definitions(
     definitions: dict[str, dict[str, Any]] = {}
     for model in flat_models:
         m_schema, m_definitions, m_nested_models = model_process_schema(
-            model, model_name_map=model_name_map, ref_prefix=REF_PREFIX,
+            model,
+            model_name_map=model_name_map,
+            ref_prefix=REF_PREFIX,
         )
         definitions.update(m_definitions)
         try:
