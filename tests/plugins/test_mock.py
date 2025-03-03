@@ -26,6 +26,23 @@ async def test_nats_mock_should_respond_with_mocked_response(app, natsapi_mock):
     assert reply.result == {"items": [{"id": 1}]}, reply.result
 
 
+async def test_nats_mock_should_respond_with_mocked_response_given_a_model(app, natsapi_mock):
+    from pydantic import BaseModel
+
+    class Foo(BaseModel):
+        items: list[str]
+
+    # given:
+    await natsapi_mock.request(f"{ch}.items.retrieve", response=Foo(items=["a", "b"]))
+
+    # when:
+    reply = await app.nc.request(f"{ch}.items.retrieve", timeout=1)
+
+    # then:
+    assert not reply.error
+    assert reply.result == {"items": [{"id": 1}]}, reply.result
+
+
 async def test_be_able_to_intercept_nats_request_payload(app, natsapi_mock):
     # given:
     await natsapi_mock.request(f"{ch}.items.id.retrieve", response={"id": 1})
