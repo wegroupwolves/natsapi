@@ -17,7 +17,6 @@ generate-setup-file = false
 [tool.poetry.dependencies]
 python = "^3.9"
 pydantic = ">=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0"
-
 nats-py = {extras = ["nkeys"], version = "^2.2.0"}
 pydantic-settings = "^2.8.1"
 
