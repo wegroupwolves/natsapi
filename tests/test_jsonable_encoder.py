@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
 from natsapi._compat import RootModel
 from natsapi.encoders import jsonable_encoder
+from typing import Optional
 
 
 class Person:
@@ -59,7 +60,7 @@ class RoleEnum(Enum):
 
 
 class ModelWithConfig(BaseModel):
-    role: RoleEnum | None = None
+    role: Optional[RoleEnum] = None
 
     class Config:
         use_enum_values = True

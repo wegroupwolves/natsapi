@@ -5,7 +5,7 @@ from collections.abc import Callable
 from enum import Enum
 from pathlib import PurePath
 from types import GeneratorType
-from typing import Any
+from typing import Any, Union
 
 from pydantic import BaseModel
 
@@ -29,8 +29,8 @@ encoders_by_class_tuples = generate_encoders_by_class_tuples(ENCODERS_BY_TYPE)
 
 def jsonable_encoder(
     obj: Any,
-    include: SetIntStr | DictIntStrAny | None = None,
-    exclude: SetIntStr | DictIntStrAny | None = None,
+    include: Union[SetIntStr, DictIntStrAny, None] = None,
+    exclude: Union[SetIntStr, DictIntStrAny, None] = None,
     by_alias: bool = True,
     exclude_unset: bool = False,
     exclude_defaults: bool = False,

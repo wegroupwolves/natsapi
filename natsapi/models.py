@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, create_model, root_validator, validator
@@ -9,12 +9,12 @@ from natsapi.enums import JSON_RPC_VERSION
 
 class ErrorDetail(BaseModel):
     type: str
-    target: str | None = None
+    target: Optional[str] = None
     message: str
 
 
 class ErrorData(BaseModel):
-    type: str | None = None
+    type: Optional[str] = None
     errors: list[ErrorDetail] = []
 
 
@@ -31,8 +31,8 @@ class JsonRPCError(BaseModel):
 class JsonRPCReply(BaseModel):
     jsonrpc: JSON_RPC_VERSION = Field("2.0")
     id: UUID = Field(...)
-    result: dict[str, Any] | None = Field(None)
-    error: JsonRPCError | None = Field(None)
+    result: Optional[dict[str, Any]] = Field(None)
+    error: Optional[JsonRPCError] = Field(None)
 
     @root_validator(pre=True)
     def check_result_and_error(cls, values):
@@ -46,14 +46,14 @@ class JsonRPCReply(BaseModel):
 
 
 class JsonRPCRequest(BaseModel):
-    jsonrpc: JSON_RPC_VERSION | None = Field("2.0")
-    timeout: float | None = Field(
+    jsonrpc: Optional[JSON_RPC_VERSION] = Field("2.0")
+    timeout: Optional[float] = Field(
         None,
         description="Timeout set by client, should be equal to the timeout set when doing nc.request, if publish use '-1'",
     )
-    method: str | None = Field(None, description="Request method used")
+    method: Optional[str] = Field(None, description="Request method used")
     params: dict[str, Any] = Field(...)
-    id: UUID | None = Field(None, alias="id", description="UUID created at the creation of the request")
+    id: Optional[UUID] = Field(None, alias="id", description="UUID created at the creation of the request")
 
     @validator("id", pre=True, always=True)
     def set_id(cls, id):

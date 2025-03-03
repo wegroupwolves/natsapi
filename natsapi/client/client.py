@@ -5,7 +5,7 @@ import logging
 import secrets
 from collections.abc import Callable
 from ssl import create_default_context
-from typing import Any
+from typing import Any, Optional
 from uuid import uuid4
 
 from nats.aio.client import Client as NATS
@@ -23,8 +23,8 @@ class NatsClient:
         self,
         routes: dict[str, Request],
         app: Any = None,
-        config: Config | None = None,
-        exception_handlers: dict[type[Exception], Callable[[type[Exception]], JsonRPCException]] | None = None,
+        config: Optional[Config] = None,
+        exception_handlers: Optional[dict[type[Exception], Callable[[type[Exception]], JsonRPCException]]] = None,
     ) -> None:
         self.routes = routes
         self.app = app
@@ -146,7 +146,7 @@ class NatsClient:
         finally:
             await self.publish_on_reply(msg.reply, reply.json().encode())
 
-    def _lookup_exception_handler(self, exc: Exception) -> Callable | None:
+    def _lookup_exception_handler(self, exc: Exception) -> Optional[Callable]:
         """
         Gets list of all the types the exception instance inherits from and checks if
         exception type is in the 'exception_handlers' dict.

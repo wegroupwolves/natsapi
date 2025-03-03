@@ -50,7 +50,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 exclude = ["scripts"]
-target-version = "py312"
+target-version = "py39"
 
 [tool.ruff.lint]
 extend-select = ["C90", "I", "B", "Q", "UP", "S", "COM", "C4", "T10", "SIM", "TID", "PTH", "ERA"]

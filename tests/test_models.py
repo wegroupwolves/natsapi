@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from typing import Optional
 import pytest
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import Field
@@ -10,7 +11,7 @@ from natsapi.models import JsonRPCReply, JsonRPCRequest
 def test_change_param_type_of_model_should_change():
     class Params(BaseModel):
         foo: int = Field(...)
-        bar: str | None = Field(None)
+        bar: Optional[str] = Field(None)
 
     new_model = JsonRPCRequest.with_params(Params)
 

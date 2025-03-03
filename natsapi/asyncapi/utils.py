@@ -1,7 +1,7 @@
 import typing
 from collections.abc import Sequence
 from enum import Enum
-from typing import Any
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 
@@ -33,7 +33,7 @@ def _get_flat_fields_from_params(fields: list[ModelField]) -> list[ModelField]:
     return fields
 
 
-def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> set[type[BaseModel] | type[Enum]]:
+def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Union[set[type[BaseModel] , type[Enum]]]:
     replies_from_routes: set[ModelField] = set()
     requests_from_routes: set[ModelField] = set()
     messages_from_pubs: set[ModelField] = set()
@@ -181,8 +181,8 @@ def get_asyncapi(
     routes: dict[str, Request],
     subs: list[Sub],
     pubs: list[Pub],
-    description: str | None = None,
-    servers: dict[str, Server] | None = None,
+    description: Optional[str] = None,
+    servers: Optional[dict[str, Server]] = None,
 ) -> dict[str, Any]:
     subjects: dict[str, dict[str, Any]] = {}
     info = {"title": title, "version": version}

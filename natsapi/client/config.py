@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
@@ -44,8 +44,8 @@ class ConnectConfig(BaseSettings):
     signature_cb: Any = None
     user_jwt_cb: Any = None
     user_credentials: Any = None
-    nkeys_seed: str | None = None
-    flush_timeout: float | None = None
+    nkeys_seed: Optional[str] = None
+    flush_timeout: Optional[float] = None
     pending_size: int = DEFAULT_PENDING_SIZE
 
 

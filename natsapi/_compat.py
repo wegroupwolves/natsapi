@@ -6,6 +6,8 @@ from typing import (
     Annotated,
     Any,
     Literal,
+    Union,
+    Optional
 )
 
 from pydantic import BaseModel
@@ -16,7 +18,7 @@ from natsapi.asyncapi.constants import REF_PREFIX
 PYDANTIC_VERSION_MINOR_TUPLE = tuple(int(x) for x in PYDANTIC_VERSION.split(".")[:2])
 PYDANTIC_V2 = PYDANTIC_VERSION_MINOR_TUPLE[0] == 2
 
-ModelNameMap = dict[type[BaseModel] | type[Enum], str]
+ModelNameMap = Union[dict[type[BaseModel] , type[Enum], str]]
 
 if PYDANTIC_V2:
     from pydantic import (
@@ -40,7 +42,7 @@ if PYDANTIC_V2:
         field_info: FieldInfo
         name: str
         mode: Literal["validation", "serialization"] = "validation"
-        sub_fields: str | None = None
+        sub_fields: Optional[str] = None
 
         @property
         def alias(self) -> str:
@@ -72,8 +74,8 @@ if PYDANTIC_V2:
             value: Any,
             values: dict[str, Any] = {},  # noqa: B006
             *,
-            loc: tuple[int | str, ...] = (),
-        ) -> tuple[Any, list[dict[str, Any]] | None]:
+            loc: tuple[Union[int , str], ...] = (),
+        ) -> tuple[Any, list[dict[str, Any]]]:
             try:
                 return (
                     self._type_adapter.validate_python(value, from_attributes=True),
@@ -126,7 +128,7 @@ if PYDANTIC_V2:
         dict[tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
         dict[str, dict[str, Any]],
     ]:
-        override_mode: Literal["validation"] | None = None if separate_input_output_schemas else "validation"
+        override_mode: Optiona[Literal["validation"]] = None if separate_input_output_schemas else "validation"
         inputs = [(field, override_mode or field.mode, field._type_adapter.core_schema) for field in fields]
         field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
         return field_mapping, definitions  # type: ignore[return-value]
@@ -218,7 +220,7 @@ else:
 def _regenerate_error_with_loc(
     *,
     errors: Sequence[Any],
-    loc_prefix: tuple[str | int, ...],
+    loc_prefix: tuple[Union[str , int], ...],
 ) -> list[dict[str, Any]]:
     updated_loc_errors: list[Any] = [
         {**err, "loc": loc_prefix + err.get("loc", ())} for err in _normalize_errors(errors)

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field, validator
 
@@ -6,81 +6,81 @@ from pydantic import BaseModel, Field, validator
 
 
 class ExternalDocumentation(BaseModel):
-    description: str | None
+    description: Optional[str]
     url: str
 
 
 class Discriminator(BaseModel):
     propertyName: dict[str, Any]
-    mapping: dict[str, str] | None = None
+    mapping: Optional[dict[str, str]] = None
 
 
 class SchemaBase(BaseModel):
-    ref: str | None = Field(None, alias="$ref")
-    title: str | None = None
-    multipleOf: float | None = None
-    maximum: float | None = None
-    exclusiveMaximum: float | None = None
-    minimum: float | None = None
-    exclusiveMinimum: float | None = None
-    maxLength: int | None = Field(None, gte=0)
-    minLength: int | None = Field(None, gte=0)
-    pattern: str | None = None
-    maxItems: int | None = Field(None, gte=0)
-    minItems: int | None = Field(None, gte=0)
-    uniqueItems: bool | None = None
-    maxProperties: int | None = Field(None, gte=0)
-    minProperties: int | None = Field(None, gte=0)
-    required: list[str] | None = None
-    enum: list[Any] | None = None
-    type: str | None = None
-    allOf: list[Any] | None = None
-    oneOf: list[Any] | None = None
-    anyOf: list[Any] | None = None
-    not_: Any | None = Field(None, alias="not")
-    items: Any | None = None
-    properties: dict[str, Any] | None = None
-    additionalProperties: dict[str, Any] | bool | None = None
-    description: str | None = None
-    format: str | None = None
-    default: Any | None = None
-    nullable: bool | None = None
-    discriminator: Discriminator | None = None
-    readOnly: bool | None = None
-    writeOnly: bool | None = None
-    externalDocs: ExternalDocumentation | None = None
-    example: Any | None = None
-    deprecated: bool | None = None
+    ref: Optional[str] = Field(None, alias="$ref")
+    title: Optional[str] = None
+    multipleOf: Optional[float] = None
+    maximum: Optional[float] = None
+    exclusiveMaximum: Optional[float] = None
+    minimum: Optional[float] = None
+    exclusiveMinimum: Optional[float] = None
+    maxLength: Optional[int] = Field(None, gte=0)
+    minLength: Optional[int] = Field(None, gte=0)
+    pattern: Optional[str] = None
+    maxItems: Optional[int] = Field(None, gte=0)
+    minItems: Optional[int] = Field(None, gte=0)
+    uniqueItems: Optional[bool] = None
+    maxProperties: Optional[int] = Field(None, gte=0)
+    minProperties: Optional[int] = Field(None, gte=0)
+    required: Optional[list[str]] = None
+    enum: Optional[list[Any]] = None
+    type: Optional[str] = None
+    allOf: Optional[list[Any]] = None
+    oneOf: Optional[list[Any]] = None
+    anyOf: Optional[list[Any]] = None
+    not_: Any = Field(None, alias="not")
+    items: Any = None
+    properties: Optional[dict[str, Any]] = None
+    additionalProperties: Optional[dict[str, Any] | bool] = None
+    description: Optional[str] = None
+    format: Optional[str] = None
+    default: Any = None
+    nullable: Optional[bool] = None
+    discriminator: Optional[Discriminator] = None
+    readOnly: Optional[bool] = None
+    writeOnly: Optional[bool] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    example: Any = None
+    deprecated: Optional[bool] = None
 
 
 class Schema(SchemaBase):
-    allOf: list[SchemaBase] | None = None
-    oneOf: list[SchemaBase] | None = None
-    anyOf: list[SchemaBase] | None = None
-    not_: SchemaBase | None = Field(None, alias="not")
-    items: SchemaBase | None = None
-    properties: dict[str, SchemaBase] | None = None
-    additionalProperties: dict[str, Any] | bool | None = None
+    allOf: Optional[list[SchemaBase]] = None
+    oneOf: Optional[list[SchemaBase]] = None
+    anyOf: Optional[list[SchemaBase]] = None
+    not_: Optional[SchemaBase] = Field(None, alias="not")
+    items: Optional[SchemaBase] = None
+    properties: Optional[dict[str, SchemaBase]] = None
+    additionalProperties: Optional[dict[str, Any] | bool] = None
 
 
 class Contact(BaseModel):
-    name: str | None
-    url: str | None
-    email: str | None
+    name: Optional[str]
+    url: Optional[str]
+    email: Optional[str]
 
 
 class License(BaseModel):
     name: str
-    url: str | None
+    url: Optional[str]
 
 
 class Info(BaseModel):
     title: str
     version: str
-    description: str | None = None
-    termsOfService: str | None = None
-    contact: Contact | None = None
-    licence: License | None = None
+    description: Optional[str] = None
+    termsOfService: Optional[str] = None
+    contact: Optional[Contact] = None
+    licence: Optional[License] = None
 
 
 class Reference(BaseModel):
@@ -89,8 +89,8 @@ class Reference(BaseModel):
 
 class Tag(BaseModel):
     name: str
-    description: str | None = None
-    externalDocs: ExternalDocumentation | None = None
+    description: Optional[str] = None
+    externalDocs: Optional[ExternalDocumentation] = None
 
 
 # TODO: Add nats bindings
@@ -99,7 +99,7 @@ class NatsBindings(BaseModel):
 
 
 class BindingsBase(BaseModel):
-    nats: NatsBindings | Reference | None
+    nats: Union[NatsBindings, Reference, None]
 
 
 class ServerBindings(BindingsBase):
@@ -120,113 +120,113 @@ class MessageBindings(BindingsBase):
 
 class CorrelationId(BaseModel):
     location: str
-    description: str | None
+    description: Optional[str]
 
 
 class MessageTrait(BaseModel):
-    headers: Schema | Reference | None
-    correlationId: CorrelationId | Reference | None
-    schemaFormat: str | None
-    contentType: str | None
-    name: str | None
-    title: str | None
-    summary: str | None
-    description: str | None
-    tags: list[Tag] | None
-    externalDocs: ExternalDocumentation | None
-    bindings: MessageBindings | Reference | None
-    examples: dict[str, Any] | None
+    headers: Union[Schema, Reference, None]
+    correlationId: Union[CorrelationId, Reference, None]
+    schemaFormat: Optional[str]
+    contentType: Optional[str]
+    name: Optional[str]
+    title: Optional[str]
+    summary: Optional[str]
+    description: Optional[str]
+    tags: Optional[list[Tag]]
+    externalDocs: Optional[ExternalDocumentation]
+    bindings: Union[MessageBindings, Reference, None]
+    examples: Optional[dict[str, Any]]
 
 
 class Message(BaseModel):
-    headers: Schema | Reference | None = None
-    payload: Any | None = None
-    correlationId: CorrelationId | Reference | None = None
-    schemaFormat: str | None = None
-    contentType: str | None = None
-    name: str | None = None
-    title: str | None = None
-    summary: str | None = None
-    description: str | None = None
-    tags: list[Tag] | None = None
-    externalDocs: ExternalDocumentation | None = None
-    bindings: MessageBindings | Reference | None = None
-    examples: dict[str, Any] | None = None
-    traits: MessageTrait | Reference | None = None
+    headers: Union[Schema, Reference, None] = None
+    payload: Any = None
+    correlationId: Union[CorrelationId, Reference, None] = None
+    schemaFormat: Optional[str] = None
+    contentType: Optional[str] = None
+    name: Optional[str] = None
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[list[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Union[MessageBindings, Reference, None] = None
+    examples: Optional[dict[str, Any]] = None
+    traits: Union[MessageTrait, Reference, None] = None
 
 
 class OperationTrait(BaseModel):
-    operationId: str | None = None
-    summary: str | None = None
-    description: str | None = None
-    tags: list[Tag] | None = None
-    externalDocs: ExternalDocumentation | None = None
-    bindings: OperationBindings | Reference | None = None
+    operationId: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[list[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Union[OperationBindings, Reference, None] = None
 
 
 class Operation(BaseModel):
-    operationId: str | None = None
-    summary: str | None = None
-    description: str | None = None
-    tags: list[Tag] | None = None
-    externalDocs: ExternalDocumentation | None = None
-    bindings: OperationBindings | Reference | None = None
-    traits: list[OperationTrait | Reference] | None = None
-    message: Message | Reference | None = None
+    operationId: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[list[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    bindings: Union[OperationBindings, Reference, None] = None
+    traits: Optional[list[Union[OperationTrait, Reference]]] = None
+    message: Union[Message, Reference, None] = None
 
 
 class SubscribeOperation(Operation):
-    queue: str | None = Field(None, alias="x-queue")
+    queue: Optional[str] = Field(None, alias="x-queue")
 
 
 class RequestOperation(Operation):
-    replies: list[Message | Reference] | None = None
-    suggestedTimeout: float | None = Field(None, alias="x-suggested-timeout")
+    replies: Optional[list[Union[Message, Reference]]] = None
+    suggestedTimeout: Optional[float] = Field(None, alias="x-suggested-timeout")
 
 
 class Parameter(BaseModel):
-    description: str | None = None
-    schema_: dict[str, Any] | Reference = Field(..., alias="schema")
-    location: str | None = None
+    description: Optional[str] = None
+    schema_: Union[dict[str, Any], Reference] = Field(..., alias="schema")
+    location: Optional[str] = None
 
 
 class ChannelItem(BaseModel):
-    description: str | None = None
-    subscribe: SubscribeOperation | None = None
-    publish: Operation | None = None
-    request: RequestOperation | None = None
-    parameters: dict[str, Parameter | Reference] | None = None
-    bindings: ChannelBindings | Reference | None = None
-    deprecated: bool | None = None
+    description: Optional[str] = None
+    subscribe: Optional[SubscribeOperation] = None
+    publish: Optional[Operation] = None
+    request: Optional[RequestOperation] = None
+    parameters: Optional[dict[str, Union[Parameter, Reference]]] = None
+    bindings: Union[ChannelBindings, Reference, None] = None
+    deprecated: Optional[bool] = None
 
 
 class ServerVariable(BaseModel):
-    enum: list[str] | None = None
-    default: str | None = None
-    description: str | None = None
-    examples: list[str] | None = None
+    enum: Optional[list[str]] = None
+    default: Optional[str] = None
+    description: Optional[str] = None
+    examples: Optional[list[str]] = None
 
 
 class Server(BaseModel):
     url: str
     protocol: str
-    protocolVersion: str | None
-    description: str | None
-    variables: dict[str, ServerVariable] | None
-    bindings: ServerBindings | Reference | None = None
+    protocolVersion: Optional[str]
+    description: Optional[str]
+    variables: Optional[dict[str, ServerVariable]]
+    bindings: Union[ServerBindings, Reference, None] = None
 
 
 class Components(BaseModel):
-    schemas: dict[str, Schema | Reference] | None = None
-    messages: dict[str, Message | Reference] | None = None
-    parameters: dict[str, dict[str, Parameter] | Reference] | None = None
-    correlationIds: dict[str, CorrelationId | Reference] | None = None
-    operationTraits: dict[str, OperationTrait | Reference] | None = None
-    messageTraits: dict[str, MessageTrait | Reference] | None = None
-    serverBindings: dict[str, ServerBindings | Reference] | None = None
-    channelBindings: dict[str, ChannelBindings | Reference] | None = None
-    operationBindings: dict[str, OperationBindings | Reference] | None = None
-    messageBindings: dict[str, MessageBindings | Reference] | None = None
+    schemas: Optional[dict[str, Union[Schema, Reference]]] = None
+    messages: Optional[dict[str, Union[Message, Reference]]] = None
+    parameters: Optional[dict[str, Union[dict[str, Parameter], Reference]]] = None
+    correlationIds: Optional[dict[str, Union[CorrelationId, Reference]]] = None
+    operationTraits: Optional[dict[str, Union[OperationTrait, Reference]]] = None
+    messageTraits: Optional[dict[str, Union[MessageTrait, Reference]]] = None
+    serverBindings: Optional[dict[str, Union[ServerBindings, Reference]]] = None
+    channelBindings: Optional[dict[str, Union[ChannelBindings, Reference]]] = None
+    operationBindings: Optional[dict[str, Union[OperationBindings, Reference]]] = None
+    messageBindings: Optional[dict[str, Union[MessageBindings, Reference]]] = None
 
 
 class Range(BaseModel):
@@ -246,12 +246,12 @@ class Errors(BaseModel):
 
 class AsyncAPI(BaseModel):
     asyncapi: str
-    id: str | None = None
+    id: Optional[str] = None
     info: Info
-    servers: dict[str, Server] | None = None
-    defaultContentType: str | None = "application/json"
-    channels: dict[str, ChannelItem | Reference] | None = None
-    components: Components | None = None
-    tags: list[Tag] | None = None
-    externalDocs: ExternalDocumentation | None = None
-    errors: Errors | None = None
+    servers: Optional[dict[str, Server]] = None
+    defaultContentType: Optional[str] = "application/json"
+    channels: Optional[dict[str, Union[ChannelItem, Reference]]] = None
+    components: Optional[Components] = None
+    tags: Optional[list[Tag]] = None
+    externalDocs: Optional[ExternalDocumentation] = None
+    errors: Optional[Errors] = None

@@ -2,7 +2,7 @@ import asyncio
 import inspect
 import signal
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, ValidationError
 
@@ -25,16 +25,16 @@ class NatsAPI:
         root_path: str,
         *,
         app: Any = None,
-        client_config: Config | None = None,
-        rpc_methods: list[str] | None = None,
-        exception_handlers: dict[type[Exception], Callable[[type[Exception]], JsonRPCException]] | None = None,
+        client_config: Optional[Config] = None,
+        rpc_methods: Optional[list[str]] = None,
+        exception_handlers: Optional[dict[type[Exception], Callable[[type[Exception]], JsonRPCException]]] = None,
         title: str = "NatsAPI",
         version: str = "0.1.0",
         description: str = None,
-        tags: list[dict[str, Any]] | None = None,
-        servers: dict[str, str | Any] | None = None,
-        domain_errors: dict[str, Any] | None = None,
-        external_docs: dict[str, Any] | None = None,
+        tags: Optional[list[dict[str, Any]]] = None,
+        servers: Optional[dict[str, Union[str | Any]]] = None,
+        domain_errors: Optional[dict[str, Any]] = None,
+        external_docs: Optional[dict[str, Any]] = None,
     ):
         """
         Parameters
@@ -54,7 +54,7 @@ class NatsAPI:
         self.asyncapi_tags = tags or []
         self.asyncapi_version = "2.0.0"
         self.domain_errors: Errors = domain_errors
-        self.asyncapi_schema: dict[str, Any] | None = None
+        self.asyncapi_schema: Optional[dict[str, Any]] = None
         self.nc: NatsClient = None
         self.subs: set[Sub] = set()
         self.pubs: set[Pub] = set()
@@ -229,13 +229,13 @@ class NatsAPI:
         endpoint: Callable[..., Any],
         *,
         result=type[Any],
-        skip_validation: bool | None = False,
-        description: str | None = None,
-        deprecated: bool | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        suggested_timeout: float | None = None,
-        include_schema: bool | None = True,
+        skip_validation: Optional[bool] = False,
+        description: Optional[str] = None,
+        deprecated: Optional[bool] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        suggested_timeout: Optional[float] = None,
+        include_schema: Optional[bool] = True,
     ) -> None:
         request = Request(
             subject=subject,
@@ -265,12 +265,12 @@ class NatsAPI:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        skip_validation: bool | None = False,
-        description: str | None = None,
-        deprecated: bool | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        include_schema: bool | None = True,
+        skip_validation: Optional[bool] = False,
+        description: Optional[str] = None,
+        deprecated: Optional[bool] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        include_schema: Optional[bool] = True,
     ) -> None:
         publish = Publish(
             subject=subject,
@@ -298,13 +298,13 @@ class NatsAPI:
         subject: str,
         *,
         result=type[Any],
-        skip_validation: bool | None = False,
-        description: str | None = None,
-        deprecated: bool | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        suggested_timeout: float | None = None,
-        include_schema: bool | None = True,
+        skip_validation: Optional[bool] = False,
+        description: Optional[str] = None,
+        deprecated: Optional[bool] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        suggested_timeout: Optional[float] = None,
+        include_schema: Optional[bool] = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_request(
@@ -327,12 +327,12 @@ class NatsAPI:
         self,
         subject: str,
         *,
-        skip_validation: bool | None = False,
-        description: str | None = None,
-        deprecated: bool | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        include_schema: bool | None = True,
+        skip_validation: Optional[bool] = False,
+        description: Optional[str] = None,
+        deprecated: Optional[bool] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        include_schema: Optional[bool] = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_publish(
@@ -354,10 +354,10 @@ class NatsAPI:
         subject: str,
         params: BaseModel,
         *,
-        summary: str | None = None,
-        description: str | None = None,
-        tags: list[str] | None = None,
-        externalDocs: ExternalDocumentation | None = None,
+        summary: Optional[str] = None,
+        description: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        externalDocs: Optional[ExternalDocumentation] = None,
     ) -> None:
         """
         Include pub in asyncapi schema
@@ -377,10 +377,10 @@ class NatsAPI:
         subject: str,
         *,
         params=type[Any],
-        description: str | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        externalDocs: ExternalDocumentation | None = None,
+        description: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        externalDocs: Optional[ExternalDocumentation] = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_pub(
@@ -403,11 +403,11 @@ class NatsAPI:
         self,
         subject: str,
         *,
-        queue: str | None = None,
-        summary: str | None = None,
-        description: str | None = None,
-        tags: list[str] | None = None,
-        externalDocs: ExternalDocumentation | None = None,
+        queue: Optional[str] = None,
+        summary: Optional[str] = None,
+        description: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        externalDocs: Optional[ExternalDocumentation] = None,
     ) -> None:
         """
         Include sub in asyncapi schema
@@ -426,11 +426,11 @@ class NatsAPI:
         self,
         subject: str,
         *,
-        queue: str | None = None,
-        description: str | None = None,
-        tags: list[str] | None = None,
-        summary: str | None = None,
-        externalDocs: ExternalDocumentation | None = None,
+        queue: Optional[str] = None,
+        description: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        summary: Optional[str] = None,
+        externalDocs: Optional[ExternalDocumentation] = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.add_sub(
