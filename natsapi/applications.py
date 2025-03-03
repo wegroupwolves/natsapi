@@ -32,7 +32,7 @@ class NatsAPI:
         version: str = "0.1.0",
         description: str = None,
         tags: Optional[list[dict[str, Any]]] = None,
-        servers: Optional[dict[str, Union[str | Any]]] = None,
+        servers: Optional[dict[str, Union[str , Any]]] = None,
         domain_errors: Optional[dict[str, Any]] = None,
         external_docs: Optional[dict[str, Any]] = None,
     ):

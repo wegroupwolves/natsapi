@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
@@ -17,7 +17,7 @@ from natsapi._compat import BaseSettings
 
 
 class ConnectConfig(BaseSettings):
-    servers: str | list[str] = ["nats://127.0.0.1:4222"]
+    servers: Union[str , list[str]] = ["nats://127.0.0.1:4222"]
     error_cb: Any = None
     closed_cb: Any = None
     reconnected_cb: Any = None

@@ -1,6 +1,6 @@
+from typing import Optional
 from uuid import uuid4
 
-from typing import Optional
 import pytest
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import Field

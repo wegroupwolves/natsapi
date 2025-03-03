@@ -2,13 +2,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from typing import (
-    Annotated,
-    Any,
-    Literal,
-    Union,
-    Optional
-)
+from typing import Annotated, Any, Literal, Optional, Union
 
 from pydantic import BaseModel
 from pydantic.version import VERSION as PYDANTIC_VERSION
@@ -18,7 +12,7 @@ from natsapi.asyncapi.constants import REF_PREFIX
 PYDANTIC_VERSION_MINOR_TUPLE = tuple(int(x) for x in PYDANTIC_VERSION.split(".")[:2])
 PYDANTIC_V2 = PYDANTIC_VERSION_MINOR_TUPLE[0] == 2
 
-ModelNameMap = Union[dict[type[BaseModel] , type[Enum], str]]
+ModelNameMap = Union[dict[type[BaseModel], type[Enum], str]]
 
 if PYDANTIC_V2:
     from pydantic import (
@@ -74,7 +68,7 @@ if PYDANTIC_V2:
             value: Any,
             values: dict[str, Any] = {},  # noqa: B006
             *,
-            loc: tuple[Union[int , str], ...] = (),
+            loc: tuple[Union[int, str], ...] = (),
         ) -> tuple[Any, list[dict[str, Any]]]:
             try:
                 return (
@@ -128,7 +122,7 @@ if PYDANTIC_V2:
         dict[tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
         dict[str, dict[str, Any]],
     ]:
-        override_mode: Optiona[Literal["validation"]] = None if separate_input_output_schemas else "validation"
+        override_mode: Optional[Literal["validation"]] = None if separate_input_output_schemas else "validation"
         inputs = [(field, override_mode or field.mode, field._type_adapter.core_schema) for field in fields]
         field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
         return field_mapping, definitions  # type: ignore[return-value]
@@ -186,8 +180,8 @@ else:
 
     def get_model_definitions(
         *,
-        flat_models: set[type[BaseModel] | type[Enum]],
-        model_name_map: dict[type[BaseModel] | type[Enum], str],
+        flat_models: Union[set[type[BaseModel], type[Enum]]],
+        model_name_map: Union[dict[type[BaseModel], type[Enum], str]],
     ) -> dict[str, Any]:
         definitions: dict[str, dict[str, Any]] = {}
         for model in flat_models:
@@ -220,7 +214,7 @@ else:
 def _regenerate_error_with_loc(
     *,
     errors: Sequence[Any],
-    loc_prefix: tuple[Union[str , int], ...],
+    loc_prefix: tuple[Union[str, int], ...],
 ) -> list[dict[str, Any]]:
     updated_loc_errors: list[Any] = [
         {**err, "loc": loc_prefix + err.get("loc", ())} for err in _normalize_errors(errors)

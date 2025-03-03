@@ -40,7 +40,7 @@ class SchemaBase(BaseModel):
     not_: Any = Field(None, alias="not")
     items: Any = None
     properties: Optional[dict[str, Any]] = None
-    additionalProperties: Optional[dict[str, Any] | bool] = None
+    additionalProperties: Optional[Union[dict[str, Any] , bool]] = None
     description: Optional[str] = None
     format: Optional[str] = None
     default: Any = None
@@ -60,7 +60,7 @@ class Schema(SchemaBase):
     not_: Optional[SchemaBase] = Field(None, alias="not")
     items: Optional[SchemaBase] = None
     properties: Optional[dict[str, SchemaBase]] = None
-    additionalProperties: Optional[dict[str, Any] | bool] = None
+    additionalProperties: Optional[Union[dict[str, Any] , bool]] = None
 
 
 class Contact(BaseModel):

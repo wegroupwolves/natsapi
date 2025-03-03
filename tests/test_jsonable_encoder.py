@@ -1,15 +1,15 @@
 """yanked from fastapi"""
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
+from typing import Optional
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
 from natsapi._compat import RootModel
 from natsapi.encoders import jsonable_encoder
-from typing import Optional
 
 
 class Person:
@@ -45,8 +45,9 @@ class Unserializable:
 class ModelWithCustomEncoder(BaseModel):
     dt_field: datetime
 
+
     class Config:
-        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=UTC).isoformat()}
+        json_encoders = {datetime: lambda dt: dt.replace(microsecond=0, tzinfo=timezone.utc).isoformat()}
 
 
 class ModelWithCustomEncoderSubclass(ModelWithCustomEncoder):
