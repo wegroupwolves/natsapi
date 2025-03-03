@@ -1,6 +1,4 @@
 import pytest
-
-
 from pydantic import BaseModel
 
 from natsapi import NatsAPI, SubjectRouter

@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from natsapi.models import JsonRPCReply, JsonRPCRequest
-from natsapi.context import CTX_JSONRPC_ID
 
 from natsapi import NatsAPI, SubjectRouter
+from natsapi.context import CTX_JSONRPC_ID
 from natsapi.exceptions import JsonRPCException
+from natsapi.models import JsonRPCReply, JsonRPCRequest
 
 
 class StatusResult(BaseModel):
@@ -84,6 +84,15 @@ async def test_payload_with_empty_request_method_and_method__in_subject_get_succ
     assert reply.result["status"] == "OK"
 
 
+async def test_payload_with_empty_request_method_and_method__in_subject_get_successful_reply_with_return_model(app):
+    @app.request(subject="foo")
+    async def _(app, foo: int):
+        return StatusResult(status="OK")
+
+    reply = await app.nc.request("natsapi.development.foo", {"foo": 1})
+    assert reply.result["status"] == "OK"
+
+
 async def test_unhandled_application_error_should_get_failed_reply(app):
     expected = EOFError("Unhandled exception, e.g. UniqueViolationError")
     router = SubjectRouter()
@@ -156,7 +165,7 @@ async def test_skip_validation_should_pass_original_dict_in_validator_and_have_m
     assert "dict" in reply.result["status"]
 
     schema = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
-    assert "SomeParams" in schema["components"]["schemas"].keys()
+    assert "SomeParams" in schema["components"]["schemas"]
 
 
 async def test_each_nats_request_should_have_different_id(app, natsapi_mock):

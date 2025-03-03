@@ -1,17 +1,15 @@
 import collections
-import functools
 import inspect
 import re
-
-
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Set, Type, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseConfig, BaseModel, create_model
-from pydantic.class_validators import Validator
-from pydantic.fields import FieldInfo, ModelField
-from pydantic.schema import model_process_schema
+from pydantic.fields import FieldInfo
+from pydantic.v1.schema import model_process_schema
 
+from natsapi._compat import PYDANTIC_V2, ModelField
 from natsapi.asyncapi.constants import REF_PREFIX
 from natsapi.exceptions import NatsAPIError
 
@@ -31,9 +29,9 @@ def generate_operation_id_for_subject(*, summary: str, subject: str) -> str:
 
 def create_field(
     name: str,
-    type_: Type[Any],
-    class_validators: Optional[Dict[str, Validator]] = None,
-    model_config: Type[BaseConfig] = BaseConfig,
+    type_: type[Any],
+    class_validators: Optional[dict[str, Any]] = None,
+    model_config: type[BaseConfig] = BaseConfig,
     field_info: Optional[FieldInfo] = None,
 ) -> ModelField:
     """
@@ -41,32 +39,40 @@ def create_field(
     Create a new reply field. Raises if type_ is invalid.
     """
     class_validators = class_validators or {}
-    field_info = field_info or FieldInfo(None)
 
-    field = functools.partial(
-        ModelField,
-        name=name,
-        type_=type_,
-        class_validators=class_validators,
-        required=True,
-        model_config=model_config,
-    )
+    field_info = (field_info or FieldInfo(annotation=type_)) if PYDANTIC_V2 else (field_info or FieldInfo())
+
+    kwargs = {"name": name, "field_info": field_info}
+
+    if not PYDANTIC_V2:
+        kwargs.update(
+            {
+                "type_": type_,
+                "class_validators": class_validators,
+                "model_config": model_config,
+                "required": True,
+            },
+        )
 
     try:
-        return field(field_info=field_info)
-    except RuntimeError:
-        raise NatsAPIError(f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type")
+        return ModelField(**kwargs)
+    except RuntimeError as e:
+        raise NatsAPIError(
+            f"Invalid args for reply field! Hint: check that {type_} is a valid pydantic field type",
+        ) from e
 
 
 def get_model_definitions(
     *,
-    flat_models: Set[Union[Type[BaseModel], Type[Enum]]],
-    model_name_map: Dict[Union[Type[BaseModel], Type[Enum]], str],
-) -> Dict[str, Any]:
-    definitions: Dict[str, Dict[str, Any]] = {}
+    flat_models: Union[set[type[BaseModel], type[Enum]]],
+    model_name_map: Union[dict[type[BaseModel], type[Enum], str]],
+) -> dict[str, Any]:
+    definitions: dict[str, dict[str, Any]] = {}
     for model in flat_models:
         m_schema, m_definitions, m_nested_models = model_process_schema(
-            model, model_name_map=model_name_map, ref_prefix=REF_PREFIX
+            model,
+            model_name_map=model_name_map,
+            ref_prefix=REF_PREFIX,
         )
         definitions.update(m_definitions)
         try:
@@ -74,15 +80,15 @@ def get_model_definitions(
         except KeyError as exc:
             method_name = str(exc.args[0]).replace("<class 'pydantic.main.", "").replace("_params'>", "")
             raise NatsAPIError(
-                f"Could not generate schema. Two or more functions share the name '{method_name}'. Make sure methods don't share the same name"
-            )
+                f"Could not generate schema. Two or more functions share the name '{method_name}'. Make sure methods don't share the same name",
+            ) from exc
         definitions[model_name] = m_schema
     return definitions
 
 
 def get_request_model(func: Callable, subject: str, skip_validation: bool):
     parameters = collections.OrderedDict(inspect.signature(func).parameters)
-    name_prefix = func.__name__ if not func.__name__ == "_" else subject
+    name_prefix = func.__name__ if func.__name__ != "_" else subject
 
     if skip_validation:
         assert (

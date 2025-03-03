@@ -1,8 +1,6 @@
 import asyncio
 
 import pytest
-
-
 from pydantic import BaseModel
 
 from natsapi import NatsAPI
@@ -38,6 +36,6 @@ def test_pass_fastapi_instance_as_app_should_work():
 
     natsapi = NatsAPI("natsapi.development", app=fastapi)
 
-    assert type(natsapi.app) == type(fastapi)
+    assert type(natsapi.app) is type(fastapi)
     assert natsapi.app.controllers == "dirty_object"
     assert natsapi.app.state.db == "postgresql"
