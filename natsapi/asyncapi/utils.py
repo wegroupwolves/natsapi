@@ -28,8 +28,7 @@ def _get_flat_fields_from_params(fields: list[ModelField]) -> list[ModelField]:
     first_field = fields[0]
 
     if len(fields) == 1 and lenient_issubclass(first_field.type_, BaseModel):
-        fields_to_extract = get_cached_model_fields(first_field.type_)
-        return fields_to_extract
+        return get_cached_model_fields(first_field.type_)
     return fields
 
 
