@@ -40,7 +40,7 @@ async def test_nats_mock_should_respond_with_mocked_response_given_a_model(app, 
 
     # then:
     assert not reply.error
-    assert reply.result == {"items": [{"id": 1}]}, reply.result
+    assert reply.result == {"items": ["a", "b"]}, reply.result
 
 
 async def test_be_able_to_intercept_nats_request_payload(app, natsapi_mock):

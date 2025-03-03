@@ -59,6 +59,13 @@ class NatsapiMock:
 
         try:
             result, error = self.responses[message.subject]
+
+            if not isinstance(result, dict):
+                if hasattr(result, "dict"):
+                    result = result.dict()
+                elif hasattr(result, "json"):
+                    result = json.loads(result.json())
+
             response = JsonRPCReply(jsonrpc="2.0", id=uuid4(), error=error, result=result)
         except KeyError:
             exc = JsonRPCUnknownMethodException()
