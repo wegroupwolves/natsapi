@@ -36,6 +36,6 @@ jobs:
         - name: Install Dependencies
           run: |
             poetry install
-            poetry add "${{ matrix.pydantic-version }}"
+            pip install --upgrade "${{ matrix.pydantic-version }}"
         - name: Run CI scripts
           run: make ci
