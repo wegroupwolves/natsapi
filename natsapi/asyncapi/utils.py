@@ -33,7 +33,7 @@ def _get_flat_fields_from_params(fields: list[ModelField]) -> list[ModelField]:
     return fields
 
 
-def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Union[set[type[BaseModel] , type[Enum]]]:
+def get_fields_from_routes(routes: Sequence[Request], pubs: Sequence[Pub]) -> Union[set[type[BaseModel], type[Enum]]]:
     replies_from_routes: set[ModelField] = set()
     requests_from_routes: set[ModelField] = set()
     messages_from_pubs: set[ModelField] = set()

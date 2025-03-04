@@ -17,7 +17,7 @@ class FastAPI(BaseModel):
 async def test_method_parameters_should_get_parsed_to_correct_typing(app):
     class ThemesCreateCmd(BaseModel):
         primary: str
-        color: typing.Union[str , None] = None
+        color: typing.Union[str, None] = None
 
     @app.request("themes.CREATE", result=StatusResult)
     async def create_theme(app, data: ThemesCreateCmd):
@@ -62,7 +62,7 @@ class TypeResult(BaseModel):
 
 async def test_exotic_typing_should_convert_to_correct_type(app):
     @app.request("themes.CONVERT", result=TypeResult)
-    async def convert_theme(app, param: typing.Union[list[str] , int]):
+    async def convert_theme(app, param: typing.Union[list[str], int]):
         return {"typing": type(param).__name__}
 
     reply = await app.nc.request("natsapi.development.themes.CONVERT", {"param": ["foo", "bar", "baz"]})

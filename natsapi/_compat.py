@@ -229,7 +229,7 @@ def get_cached_model_fields(model: type[BaseModel]) -> list[ModelField]:
 
 
 class MyGenerateJsonSchema(GenerateJsonSchema):
-    def sort(self, value: JsonSchemaValue, parent_key=None) -> JsonSchemaValue:
+    def sort(self, value: JsonSchemaValue, *args) -> JsonSchemaValue:
         """
         No-op, we don't want to sort schema values at all.
         https://docs.pydantic.dev/latest/concepts/json_schema/#json-schema-sorting

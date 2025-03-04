@@ -11,8 +11,8 @@ from pydantic import BaseModel
 
 from natsapi._compat import ENCODERS_BY_TYPE, PYDANTIC_V2
 
-SetIntStr = set[Union[int , str]]
-DictIntStrAny = dict[Union[int , str], Any]
+SetIntStr = set[Union[int, str]]
+DictIntStrAny = dict[Union[int, str], Any]
 
 
 def generate_encoders_by_class_tuples(

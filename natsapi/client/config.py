@@ -17,7 +17,7 @@ from natsapi._compat import BaseSettings
 
 
 class ConnectConfig(BaseSettings):
-    servers: Union[str , list[str]] = ["nats://127.0.0.1:4222"]
+    servers: Union[str, list[str]] = ["nats://127.0.0.1:4222"]
     error_cb: Any = None
     closed_cb: Any = None
     reconnected_cb: Any = None
