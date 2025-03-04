@@ -226,3 +226,12 @@ def _regenerate_error_with_loc(
 @lru_cache
 def get_cached_model_fields(model: type[BaseModel]) -> list[ModelField]:
     return get_model_fields(model)
+
+
+class MyGenerateJsonSchema(GenerateJsonSchema):
+    def sort(self, value: JsonSchemaValue, parent_key=None) -> JsonSchemaValue:
+        """
+        No-op, we don't want to sort schema values at all.
+        https://docs.pydantic.dev/latest/concepts/json_schema/#json-schema-sorting
+        """
+        return value

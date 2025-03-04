@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 from pydantic import BaseModel
 
 from natsapi._compat import (
-    GenerateJsonSchema,
+    MyGenerateJsonSchema,
     ModelField,
     get_cached_model_fields,
     get_compat_model_name_map,
@@ -193,7 +193,7 @@ def get_asyncapi(
 
     all_fields = get_fields_from_routes(routes.values(), pubs)
     model_name_map = get_compat_model_name_map(all_fields)
-    schema_generator = GenerateJsonSchema(ref_template=REF_TEMPLATE)
+    schema_generator = MyGenerateJsonSchema(ref_template=REF_TEMPLATE)
 
     # TODO:  <26-02-25, Sebastiaan Van Hoecke> # Where to use the first paramter (see https://github.com/fastapi/fastapi/blob/master/fastapi/openapi/utils.py#L493)
     _, definitions = get_definitions(
