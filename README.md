@@ -204,4 +204,4 @@ Plugins can be added and are found in `natsapi/plugin.py`.
 - [ ] Add support for 'side effect' testing so that you can have more than 1 response for same mocked route, based on ordering. See respx
 - [ ] Better CI/CD -> with Python 3.13
 - [ ] Make `nkeys` optional
-- [ ] Pydantic V2 support (nice to have)
+- [x] Pydantic V2 support (nice to have)
