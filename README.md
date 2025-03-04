@@ -13,7 +13,6 @@ NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and
     * [Examples](#examples)
         * [Basic](#basic)
         * [Error handling with sentry](#error-handling-with-sentry)
-        * [Reload](#reload)
     * [Generating documentation (asyncapi)](#generating-documentation-asyncapi)
     * [Plugins](#plugins)
     * [Roadmap](#roadmap)
@@ -162,15 +161,6 @@ async def handle_validation_exception(exc: ValidationError, request: JsonRPCRequ
 
 if __name__ == "__main__":
     app.run(reload=False)
-```
-
-#### Reload
-
-When running from a file you can add a reload flag (hot-reload on file change) or use the `NATSAPI_RELOAD` env var.
-
-```
-if __name__ == "__main__":
-    app.run(reload=True)
 ```
 
 ### Generating documentation (asyncapi)
