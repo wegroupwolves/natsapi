@@ -6,8 +6,8 @@ from typing import Any, Optional, Union
 from pydantic import BaseModel
 
 from natsapi._compat import (
-    MyGenerateJsonSchema,
     ModelField,
+    MyGenerateJsonSchema,
     get_cached_model_fields,
     get_compat_model_name_map,
     get_definitions,
