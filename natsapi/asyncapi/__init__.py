@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 from pydantic import BaseModel, validator
 
@@ -11,7 +11,7 @@ class Errors(BaseModel):
 
     upper_bound: int
     lower_bound: int
-    errors: List[Any]
+    errors: list[Any]
 
     @validator("lower_bound")
     def upper_bigger_than_lower(v, values):

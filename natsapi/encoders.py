@@ -1,22 +1,24 @@
 """Yanked from fastapi.encoders"""
 
 from collections import defaultdict
+from collections.abc import Callable
 from enum import Enum
 from pathlib import PurePath
 from types import GeneratorType
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Union
 
 from pydantic import BaseModel
-from pydantic.json import ENCODERS_BY_TYPE
 
-SetIntStr = Set[Union[int, str]]
-DictIntStrAny = Dict[Union[int, str], Any]
+from natsapi._compat import ENCODERS_BY_TYPE, PYDANTIC_V2
+
+SetIntStr = set[Union[int, str]]
+DictIntStrAny = dict[Union[int, str], Any]
 
 
 def generate_encoders_by_class_tuples(
-    type_encoder_map: Dict[Any, Callable[[Any], Any]]
-) -> Dict[Callable[[Any], Any], Tuple[Any, ...]]:
-    encoders_by_class_tuples: Dict[Callable[[Any], Any], Tuple[Any, ...]] = defaultdict(tuple)
+    type_encoder_map: dict[Any, Callable[[Any], Any]],
+) -> dict[Callable[[Any], Any], tuple[Any, ...]]:
+    encoders_by_class_tuples: dict[Callable[[Any], Any], tuple[Any, ...]] = defaultdict(tuple)
     for type_, encoder in type_encoder_map.items():
         encoders_by_class_tuples[encoder] += (type_,)
     return encoders_by_class_tuples
@@ -27,13 +29,13 @@ encoders_by_class_tuples = generate_encoders_by_class_tuples(ENCODERS_BY_TYPE)
 
 def jsonable_encoder(
     obj: Any,
-    include: Optional[Union[SetIntStr, DictIntStrAny]] = None,
-    exclude: Optional[Union[SetIntStr, DictIntStrAny]] = None,
+    include: Union[SetIntStr, DictIntStrAny, None] = None,
+    exclude: Union[SetIntStr, DictIntStrAny, None] = None,
     by_alias: bool = True,
     exclude_unset: bool = False,
     exclude_defaults: bool = False,
     exclude_none: bool = False,
-    custom_encoder: Dict[Any, Callable[[Any], Any]] = {},
+    custom_encoder: dict[Any, Callable[[Any], Any]] = dict(),
     sqlalchemy_safe: bool = True,
 ) -> Any:
     if include is not None and not isinstance(include, set):
@@ -41,7 +43,12 @@ def jsonable_encoder(
     if exclude is not None and not isinstance(exclude, set):
         exclude = set(exclude)
     if isinstance(obj, BaseModel):
-        encoder = getattr(obj.__config__, "json_encoders", {})
+
+        if PYDANTIC_V2:
+            encoder = obj.model_config.get("json_encoders", {})
+        else:
+            encoder = getattr(obj.__config__, "json_encoders", {})
+
         if custom_encoder:
             encoder.update(custom_encoder)
         obj_dict = obj.dict(
@@ -107,7 +114,7 @@ def jsonable_encoder(
                     exclude_none=exclude_none,
                     custom_encoder=custom_encoder,
                     sqlalchemy_safe=sqlalchemy_safe,
-                )
+                ),
             )
         return encoded_list
 
@@ -125,7 +132,7 @@ def jsonable_encoder(
         if isinstance(obj, classes_tuple):
             return encoder(obj)
 
-    errors: List[Exception] = []
+    errors: list[Exception] = []
     try:
         data = dict(obj)
     except Exception as e:
@@ -134,7 +141,7 @@ def jsonable_encoder(
             data = vars(obj)
         except Exception as e:
             errors.append(e)
-            raise ValueError(errors)
+            raise ValueError(errors) from e
     return jsonable_encoder(
         data,
         by_alias=by_alias,

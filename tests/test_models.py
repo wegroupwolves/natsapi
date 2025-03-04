@@ -2,8 +2,6 @@ from typing import Optional
 from uuid import uuid4
 
 import pytest
-
-
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import Field
 
@@ -23,7 +21,7 @@ def test_change_param_type_of_model_should_change():
     actual = new_model.parse_obj(d).params
     expected = Params
 
-    assert type(actual) == expected
+    assert type(actual) is expected
 
 
 def test_result_or_error_should_be_provided_in_jsonrpcreply():

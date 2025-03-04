@@ -1,7 +1,6 @@
 import inspect
-
-
-from typing import Any, Callable, List, Optional, Set, Type
+from collections.abc import Callable
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -16,11 +15,11 @@ class Request:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        result=Type[Any],
+        result=type[Any],
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         include_schema: Optional[bool] = True,
         suggested_timeout: Optional[float] = None,
@@ -56,7 +55,7 @@ class Publish:
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         include_schema: Optional[bool] = True,
     ):
@@ -86,7 +85,7 @@ class Sub:
         queue: Optional[str] = None,
         summary: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ):
 
@@ -106,7 +105,7 @@ class Pub:
         *,
         summary: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ):
         self.subject = subject
@@ -123,10 +122,10 @@ class SubjectRouter:
         self,
         *,
         prefix: str = None,
-        tags: Optional[List[str]] = None,
-        routes: Optional[List[Request]] = None,
-        subs: Optional[Set[Sub]] = None,
-        pubs: Optional[Set[Pub]] = None,
+        tags: Optional[list[str]] = None,
+        routes: Optional[list[Request]] = None,
+        subs: Optional[set[Sub]] = None,
+        pubs: Optional[set[Pub]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
     ) -> None:
@@ -134,7 +133,7 @@ class SubjectRouter:
         self.routes = routes or []
         self.pubs = pubs or set()
         self.subs = subs or set()
-        self.tags: List[str] = tags or []
+        self.tags: list[str] = tags or []
         self.deprecated = deprecated
         self.include_in_schema = include_in_schema
 
@@ -143,11 +142,11 @@ class SubjectRouter:
         subject: str,
         endpoint: Callable[..., Any],
         *,
-        result=Type[Any],
+        result=type[Any],
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         suggested_timeout: Optional[float] = None,
         include_schema: Optional[bool] = True,
@@ -178,7 +177,7 @@ class SubjectRouter:
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         include_schema: Optional[bool] = True,
     ) -> None:
@@ -202,11 +201,11 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        result=Type[Any],
+        result=type[Any],
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         suggested_timeout: Optional[float] = None,
         include_schema: Optional[bool] = True,
@@ -232,11 +231,11 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        result=Type[Any],
+        result=type[Any],
         skip_validation: Optional[bool] = False,
         description: Optional[str] = None,
         deprecated: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         include_schema: Optional[bool] = True,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
@@ -262,7 +261,7 @@ class SubjectRouter:
         *,
         summary: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ) -> None:
         """
@@ -282,9 +281,9 @@ class SubjectRouter:
         self,
         subject: str,
         *,
-        params=Type[Any],
+        params=type[Any],
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
@@ -308,7 +307,7 @@ class SubjectRouter:
         queue: Optional[str] = None,
         summary: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ) -> None:
         """
@@ -330,7 +329,7 @@ class SubjectRouter:
         *,
         queue: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         summary: Optional[str] = None,
         externalDocs: Optional[ExternalDocumentation] = None,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:

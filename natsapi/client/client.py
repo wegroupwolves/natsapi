@@ -1,16 +1,16 @@
 import asyncio
 import inspect
+import json
 import logging
 import secrets
-from natsapi.context import CTX_JSONRPC_ID
-
-
+from collections.abc import Callable
 from ssl import create_default_context
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Optional
 from uuid import uuid4
 
 from nats.aio.client import Client as NATS
 
+from natsapi.context import CTX_JSONRPC_ID
 from natsapi.exceptions import JsonRPCException, JsonRPCUnknownMethodException
 from natsapi.models import JsonRPCError, JsonRPCReply, JsonRPCRequest
 from natsapi.routing import Request
@@ -18,18 +18,13 @@ from natsapi.routing import Request
 from .config import Config, default_config
 
 
-class NatsClient(object):
+class NatsClient:
     def __init__(
         self,
-        routes: Dict[str, Request],
+        routes: dict[str, Request],
         app: Any = None,
         config: Optional[Config] = None,
-        exception_handlers: Optional[
-            Dict[
-                Type[Exception],
-                Callable[[Type[Exception]], JsonRPCException],
-            ]
-        ] = None,
+        exception_handlers: Optional[dict[type[Exception], Callable[[type[Exception]], JsonRPCException]]] = None,
     ) -> None:
         self.routes = routes
         self.app = app
@@ -49,7 +44,7 @@ class NatsClient(object):
     async def root_path_subscribe(self, subject: str, cb: Callable, queue: str = ""):
         await self.nats.subscribe(subject, cb=cb, **(self.config.subscribe.dict()))
 
-    async def publish(self, subject: str, params: Dict[str, Any], method: str = None, reply=None, headers: dict = None):
+    async def publish(self, subject: str, params: dict[str, Any], method: str = None, reply=None, headers: dict = None):
         """
         method: legacy attribute, used for backwards compatibility
         """
@@ -60,7 +55,12 @@ class NatsClient(object):
         await self.nats.publish(subject, payload)
 
     async def request(
-        self, subject: str, params: Dict[str, Any] = {}, timeout=60, method: str = None, headers: dict = None
+        self,
+        subject: str,
+        params: dict[str, Any] = dict(),
+        timeout=60,
+        method: str = None,
+        headers: dict = None,
     ) -> JsonRPCReply:
         """
         method: legacy attribute, used for backwards compatibility
@@ -88,8 +88,8 @@ class NatsClient(object):
         try:
             logging.debug(f"Handling: {subject}")
             route: Request = self.routes[subject]
-        except KeyError:
-            raise JsonRPCUnknownMethodException(data=f"No such endpoint available for {subject}")
+        except KeyError as e:
+            raise JsonRPCUnknownMethodException(data=f"No such endpoint available for {subject}") from e
 
         handler = route.endpoint
         params_model = route.params
@@ -115,8 +115,8 @@ class NatsClient(object):
             try:
                 logging.debug(f"Handling: {subject}")
                 route: Request = self.routes[subject]
-            except KeyError:
-                raise JsonRPCUnknownMethodException(data=f"No such endpoint available. Checked for {subject}")
+            except KeyError as e:
+                raise JsonRPCUnknownMethodException(data=f"No such endpoint available. Checked for {subject}") from e
 
             handler = route.endpoint
             params_model = route.params
@@ -126,6 +126,13 @@ class NatsClient(object):
                 result = await handler(app=self.app, **params)
             else:
                 result = handler(self.app, **params)
+
+            if not isinstance(result, dict):
+                if hasattr(result, "dict"):
+                    result = result.dict()
+                elif hasattr(result, "json"):
+                    result = json.loads(result.json())
+
             reply = JsonRPCReply(id=request.id, result=result)
         except Exception as exc:
             if not request:

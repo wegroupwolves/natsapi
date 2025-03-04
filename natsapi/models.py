@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, create_model, root_validator, validator
@@ -15,7 +15,7 @@ class ErrorDetail(BaseModel):
 
 class ErrorData(BaseModel):
     type: Optional[str] = None
-    errors: List[ErrorDetail] = []
+    errors: list[ErrorDetail] = []
 
 
 class JsonRPCError(BaseModel):
@@ -31,7 +31,7 @@ class JsonRPCError(BaseModel):
 class JsonRPCReply(BaseModel):
     jsonrpc: JSON_RPC_VERSION = Field("2.0")
     id: UUID = Field(...)
-    result: Optional[Dict[str, Any]] = Field(None)
+    result: Optional[dict[str, Any]] = Field(None)
     error: Optional[JsonRPCError] = Field(None)
 
     @root_validator(pre=True)
@@ -40,7 +40,7 @@ class JsonRPCReply(BaseModel):
         assert result or error, "A result or error should be required"
         if result and error:
             raise AttributeError(
-                "An RPC reply MUST NOT have an error and a result. Based on the result, you should provide only one."
+                "An RPC reply MUST NOT have an error and a result. Based on the result, you should provide only one.",
             )
         return values
 
@@ -52,7 +52,7 @@ class JsonRPCRequest(BaseModel):
         description="Timeout set by client, should be equal to the timeout set when doing nc.request, if publish use '-1'",
     )
     method: Optional[str] = Field(None, description="Request method used")
-    params: Dict[str, Any] = Field(...)
+    params: dict[str, Any] = Field(...)
     id: Optional[UUID] = Field(None, alias="id", description="UUID created at the creation of the request")
 
     @validator("id", pre=True, always=True)

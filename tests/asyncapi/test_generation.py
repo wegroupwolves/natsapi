@@ -2,8 +2,6 @@ from typing import Any, Union
 from uuid import uuid4
 
 import pytest
-
-
 from pydantic import BaseModel, Field
 
 from natsapi import NatsAPI, Pub, SubjectRouter
@@ -20,7 +18,7 @@ production_server = Server(
         "protocol": "nats",
         "protocolVersion": "2.0",
         "variables": {"port": {"default": "422"}},
-    }
+    },
 )
 
 staging_server = Server(
@@ -30,7 +28,7 @@ staging_server = Server(
         "protocol": "nats",
         "protocolVersion": "2.0",
         "variables": {"port": {"default": "422"}},
-    }
+    },
 )
 
 servers_schema = {"production": production_server, "staging": staging_server}
@@ -99,7 +97,10 @@ def test_asyncapi_schema_generation_should_be_cached(monkeypatch):
 
 def test_asyncapi_schema_w_personal_title_should_generate():
     client = NatsAPI(
-        "natsapi.development", title="My Nats Client", description="This is my nats client", version="2.4.3"
+        "natsapi.development",
+        title="My Nats Client",
+        description="This is my nats client",
+        version="2.4.3",
     )
     client.generate_asyncapi()
     schema = client.asyncapi_schema
@@ -266,8 +267,8 @@ def test_routes_use_identically_named_class_in_different_modules_should_referenc
         "$ref"
     ].split("/")[-1]
 
-    assert subject_a_reply_ref in schema["components"]["schemas"].keys()
-    assert subject_b_reply_ref in schema["components"]["schemas"].keys()
+    assert subject_a_reply_ref in schema["components"]["schemas"]
+    assert subject_b_reply_ref in schema["components"]["schemas"]
 
 
 async def test_generate_shema_w_docstring_should_generate_proper_description(app: NatsAPI):
