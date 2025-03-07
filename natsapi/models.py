@@ -24,7 +24,7 @@ class JsonRPCError(BaseModel):
         ...,
         description="A message providing a short description of the error.  SHOULD be limited to a concise single sentence",
     )
-    timestamp: datetime = Field(datetime.now().isoformat(), description="Timestamp of when the error occured")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Timestamp of when the error occured")
     data: Any = Field(None, description="Additional information about the error")
 
 

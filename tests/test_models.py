@@ -5,7 +5,7 @@ import pytest
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import Field
 
-from natsapi.models import JsonRPCReply, JsonRPCRequest
+from natsapi.models import JsonRPCError, JsonRPCReply, JsonRPCRequest
 
 
 def test_change_param_type_of_model_should_change():
@@ -34,3 +34,9 @@ def test_result_and_error_should_not_be_provided_at_same_time_in_jsonrpcreply():
     with pytest.raises(AttributeError) as e:
         JsonRPCReply(error={"code": 1, "message": "foobar"}, result={"status": "OK"})
     assert "An RPC reply MUST NOT have an error and a result" in str(e)
+
+
+def test_jsponrpcerror_timestamp_is_generated_on_creation():
+    error_1 = JsonRPCError(code=1, message="", data=None)
+    error_2 = JsonRPCError(code=1, message="", data=None)
+    assert error_1.timestamp != error_2.timestamp
