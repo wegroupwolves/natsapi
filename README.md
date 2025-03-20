@@ -7,7 +7,8 @@ NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and
 
 <!-- vim-markdown-toc GitLab -->
 
-* [Installation](#installation)
+* [Python and pydantic support](#python-and-pydantic-support)
+* [Quickstart](#quickstart)
 * [Usage](#usage)
     * [Docs](#docs)
     * [Examples](#examples)
@@ -23,10 +24,24 @@ NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and
 
 This library has support for python > 3.9 and pydantic v1 and v2.
 
-## Installation
+## Quickstart
+
+
+> Optional: Run a nats server in docker so you are able to connect: `docker run --rm --name nats -dp 4222:4222 nats:latest -js -DV`
 
 ```
-$ pip install natsapi
+$ git clone git@github.com:wegroupwolves/natsapi.git && cd natsapi
+$ poetry install
+$ poetry run python examples/minimal.py
+$ nats request natsapi.persons.greet '{"params": {"person": {"first_name": "Foo", "last_name": "Bar"}}}'                                                                                                    
+```
+
+the output should look as follows:
+
+```
+18:19:00 Sending request on "natsapi.persons.greet"
+18:19:00 Received on "_INBOX.dpBgTyG9XC5NhagdqRHTcp.eMkVkru8" rtt 1.052463ms
+{"jsonrpc": "2.0", "id": "c2bc2d20-dbd5-4e39-a22d-c22a8631c5a3", "result": {"message": "Greetings Foo Bar!"}, "error": null}
 ```
 
 ## Usage
