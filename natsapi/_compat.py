@@ -235,3 +235,15 @@ class MyGenerateJsonSchema(GenerateJsonSchema):
         https://docs.pydantic.dev/latest/concepts/json_schema/#json-schema-sorting
         """
         return value
+
+    def nullable_schema(self, schema: JsonSchemaValue) -> JsonSchemaValue:
+        """
+        Override nullable schema generation to flatten optional types.
+        Instead of generating anyOf with [type, null], just return the type.
+        """
+        if PYDANTIC_V2:
+            # Extract the inner schema and generate it without the null variant
+            inner_schema = schema.get('schema')
+            if inner_schema:
+                return self.generate_inner(inner_schema)
+        return super().nullable_schema(schema)
