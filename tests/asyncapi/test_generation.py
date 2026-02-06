@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Optional, Union
 from uuid import uuid4
 
@@ -126,6 +127,7 @@ def test_generate_schema_w_external_docs_should_generate():
     assert schema["externalDocs"] == external_docs.dict()
 
 
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="Requires Python 3.10+ for union syntax")
 async def test_optional_types_are_generated_correctly(app: NatsAPI):
     class User(BaseModel):
         name: str
