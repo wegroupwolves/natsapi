@@ -9,21 +9,9 @@ in pkgs.mkShell {
 
     packages = with pkgs; [
         python311
-
         ruff
         rustc
         cargo
-
-        (poetry.override { python3 = python311; })
-
-        (python311.withPackages (p: with p; [
-            pip
-            python-lsp-server
-            pynvim
-            pyls-isort
-            python-lsp-black
-        ]))
-
     ];
 
     env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [

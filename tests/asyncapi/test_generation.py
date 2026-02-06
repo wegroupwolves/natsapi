@@ -1,4 +1,5 @@
-from typing import Any, Union
+import sys
+from typing import Any, Optional, Union
 from uuid import uuid4
 
 import pytest
@@ -124,6 +125,51 @@ def test_generate_schema_w_external_docs_should_generate():
     client.generate_asyncapi()
     schema = client.asyncapi_schema
     assert schema["externalDocs"] == external_docs.dict()
+
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="Requires Python 3.10+ for union syntax")
+async def test_optional_types_are_generated_correctly(app: NatsAPI):
+    class User(BaseModel):
+        name: str
+        mandatory_property_1: str
+        optional_property_1: str | None
+        optional_property_2: Optional[str]
+        optional_property_3: Optional[str] = None
+        optional_property_4: Optional[str] | None = None
+        optional_property_5: str | None = None
+        optional_property_6: str = None
+        optional_property_7: str | int
+
+    user_router = SubjectRouter(prefix="v1", tags=["users"], deprecated=True)
+
+    @user_router.request(
+        "users.CREATE",
+        result=User,
+        description="Creates user that can be used throughout the app",
+        tags=["auth"],
+        suggested_timeout=0.5,
+    )
+    def create_base_user(app, user: User):
+        return {"id": uuid4(), "name": user.name}
+
+    app.include_router(user_router)
+    app.generate_asyncapi()
+    schema = app.asyncapi_schema
+
+    assert schema["components"]["schemas"]["User"]["properties"]["mandatory_property_1"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_1"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_2"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_3"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_4"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_5"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_6"]["type"] == "string"
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_7"]["anyOf"] == [
+        {"type": "string"},
+        {"type": "integer"},
+    ]
+
+    schema_from_request = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
+    assert schema_from_request == schema
 
 
 async def test_generate_shema_w_requests_should_generate(app: NatsAPI):
