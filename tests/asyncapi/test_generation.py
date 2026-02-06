@@ -128,6 +128,7 @@ def test_generate_schema_w_external_docs_should_generate():
 
 async def test_optional_types_are_generated_correctly(app: NatsAPI):
     class User(BaseModel):
+        name: str
         mandatory_property_1: str
         optional_property_1: str | None
         optional_property_2: Optional[str]
@@ -147,7 +148,7 @@ async def test_optional_types_are_generated_correctly(app: NatsAPI):
         suggested_timeout=0.5,
     )
     def create_base_user(app, user: User):
-        return {"id": uuid4()}
+        return {"id": uuid4(), "name": user.name}
 
     app.include_router(user_router)
     app.generate_asyncapi()
