@@ -243,7 +243,7 @@ class MyGenerateJsonSchema(GenerateJsonSchema):
         """
         if PYDANTIC_V2:
             # Extract the inner schema and generate it without the null variant
-            inner_schema = schema.get('schema')
+            inner_schema = schema.get("schema")
             if inner_schema:
                 return self.generate_inner(inner_schema)
         return super().nullable_schema(schema)

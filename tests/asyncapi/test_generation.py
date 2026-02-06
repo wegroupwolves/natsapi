@@ -1,4 +1,4 @@
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 from uuid import uuid4
 
 import pytest
@@ -160,9 +160,9 @@ async def test_optional_types_are_generated_correctly(app: NatsAPI):
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_4"]["type"] == "string"
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_5"]["type"] == "string"
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_6"]["type"] == "string"
-    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_7"]['anyOf'] == [
-        {'type': 'string'},
-        {'type': 'integer'},
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_7"]["anyOf"] == [
+        {"type": "string"},
+        {"type": "integer"},
     ]
 
     schema_from_request = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
