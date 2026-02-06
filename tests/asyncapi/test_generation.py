@@ -125,6 +125,7 @@ def test_generate_schema_w_external_docs_should_generate():
     schema = client.asyncapi_schema
     assert schema["externalDocs"] == external_docs.dict()
 
+
 async def test_optional_types_are_generated_correctly(app: NatsAPI):
     class User(BaseModel):
         mandatory_property_1: str
@@ -134,6 +135,7 @@ async def test_optional_types_are_generated_correctly(app: NatsAPI):
         optional_property_4: Optional[str] | None = None
         optional_property_5: str | None = None
         optional_property_6: str = None
+        optional_property_7: str | int
 
     user_router = SubjectRouter(prefix="v1", tags=["users"], deprecated=True)
 
@@ -158,11 +160,13 @@ async def test_optional_types_are_generated_correctly(app: NatsAPI):
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_4"]["type"] == "string"
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_5"]["type"] == "string"
     assert schema["components"]["schemas"]["User"]["properties"]["optional_property_6"]["type"] == "string"
-
+    assert schema["components"]["schemas"]["User"]["properties"]["optional_property_7"]['anyOf'] == [
+        {'type': 'string'},
+        {'type': 'integer'},
+    ]
 
     schema_from_request = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
     assert schema_from_request == schema
-
 
 
 async def test_generate_shema_w_requests_should_generate(app: NatsAPI):
