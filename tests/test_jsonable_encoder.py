@@ -3,7 +3,6 @@
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
-from typing import Optional
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
@@ -60,7 +59,7 @@ class RoleEnum(Enum):
 
 
 class ModelWithConfig(BaseModel):
-    role: Optional[RoleEnum] = None
+    role: RoleEnum | None = None
 
     class Config:
         use_enum_values = True

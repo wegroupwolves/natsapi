@@ -1,5 +1,5 @@
 import sys
-from typing import Any, Optional, Union
+from typing import Any, Union
 from uuid import uuid4
 
 import pytest
@@ -133,9 +133,9 @@ async def test_optional_types_are_generated_correctly(app: NatsAPI):
         name: str
         mandatory_property_1: str
         optional_property_1: str | None
-        optional_property_2: Optional[str]
-        optional_property_3: Optional[str] = None
-        optional_property_4: Optional[str] | None = None
+        optional_property_2: str | None
+        optional_property_3: str | None = None
+        optional_property_4: str | None | None = None
         optional_property_5: str | None = None
         optional_property_6: str = None
         optional_property_7: str | int

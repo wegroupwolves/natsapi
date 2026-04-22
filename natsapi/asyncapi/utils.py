@@ -1,7 +1,7 @@
 import typing
 from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from pydantic import BaseModel
 
@@ -181,8 +181,8 @@ def get_asyncapi(
     routes: dict[str, Request],
     subs: list[Sub],
     pubs: list[Pub],
-    description: Optional[str] = None,
-    servers: Optional[dict[str, Server]] = None,
+    description: str | None = None,
+    servers: dict[str, Server] | None = None,
 ) -> dict[str, Any]:
     subjects: dict[str, dict[str, Any]] = {}
     info = {"title": title, "version": version}

@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from typing import Annotated, Any, Literal, Optional, Union
+from typing import Annotated, Any, Literal, Union
 
 from pydantic import BaseModel
 from pydantic.version import VERSION as PYDANTIC_VERSION
@@ -36,7 +36,7 @@ if PYDANTIC_V2:
         field_info: FieldInfo
         name: str
         mode: Literal["validation", "serialization"] = "validation"
-        sub_fields: Optional[str] = None
+        sub_fields: str | None = None
 
         @property
         def alias(self) -> str:
@@ -122,7 +122,7 @@ if PYDANTIC_V2:
         dict[tuple[ModelField, Literal["validation", "serialization"]], JsonSchemaValue],
         dict[str, dict[str, Any]],
     ]:
-        override_mode: Optional[Literal["validation"]] = None if separate_input_output_schemas else "validation"
+        override_mode: Literal["validation"] | None = None if separate_input_output_schemas else "validation"
         inputs = [(field, override_mode or field.mode, field._type_adapter.core_schema) for field in fields]
         field_mapping, definitions = schema_generator.generate_definitions(inputs=inputs)
         return field_mapping, definitions  # type: ignore[return-value]
