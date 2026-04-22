@@ -22,7 +22,7 @@ NatsAPI is highly inspired by [FastAPI](https://github.com/tiangolo/fastapi) and
 
 ## Python and pydantic support
 
-This library has support for python > 3.9 and pydantic v1 and v2.
+This library has support for python > 3.10 and pydantic v1 and v2.
 
 ## Quickstart
 

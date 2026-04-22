@@ -5,8 +5,6 @@
 ##---------- Variables --------------------------------------------------------
 PREFIX = /usr/local  # Default installation directory
 PYTEST_GENERAL_FLAGS := -vvvx --asyncio-mode=auto
-PYTEST_COV_FLAGS := --cov=natsapi --cov-append --cov-report=term-missing --cov-fail-under=85
-PYTEST_COV_ENV := COV_CORE_SOURCE=natsapi COV_CORE_CONFIG=.coveragerc COV_CORE_DATAFILE=.coverage.eager
 
 ##---------- Build targets ----------------------------------------------------
 
@@ -14,7 +12,8 @@ help: ## Show this help message (default)
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 test: ## Run tests
-	 $(PYTEST_COV_ENV) poetry run pytest $(PYTEST_GENERAL_FLAGS) $(PYTEST_COV_FLAGS)
+	poetry run coverage run --source=natsapi -m pytest $(PYTEST_GENERAL_FLAGS)
+	poetry run coverage report -m --fail-under=85
 
 testr: ## Run tests with entr
 	find natsapi tests | entr -r poetry run pytest --disable-warnings -vvvx
