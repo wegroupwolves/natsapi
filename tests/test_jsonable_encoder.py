@@ -8,7 +8,7 @@ from typing import Optional
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 
-from natsapi._compat import RootModel
+from natsapi._compat import PYDANTIC_V2, RootModel
 from natsapi.encoders import jsonable_encoder
 
 
@@ -82,8 +82,12 @@ class ModelWithRoot(RootModel):
 
 @pytest.fixture(name="model_with_path", params=[PurePath, PurePosixPath, PureWindowsPath])
 def fixture_model_with_path(request):
-    class Config:
-        arbitrary_types_allowed = True
+    if PYDANTIC_V2:
+        Config = ConfigDict(arbitrary_types_allowed=True)
+    else:
+
+        class Config:
+            arbitrary_types_allowed = True
 
     ModelWithPath = create_model(
         # type: ignore
