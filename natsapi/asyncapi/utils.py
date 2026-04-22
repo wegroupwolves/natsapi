@@ -1,3 +1,4 @@
+import types
 import typing
 from collections.abc import Sequence
 from enum import Enum
@@ -61,8 +62,9 @@ def get_flat_response_models(r) -> list[type[BaseModel]]:
 
     :r Single or multiple response models
     """
-    if type(r) is typing._UnionGenericAlias:
-        return list(r.__args__)
+    origin = typing.get_origin(r)
+    if origin in (typing.Union, types.UnionType):
+        return list(typing.get_args(r))
     else:
         return [r]
 

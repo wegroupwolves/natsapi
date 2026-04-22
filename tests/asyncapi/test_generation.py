@@ -1,5 +1,4 @@
-import sys
-from typing import Any, Union
+from typing import Any, Optional, Union
 from uuid import uuid4
 
 import pytest
@@ -127,18 +126,18 @@ def test_generate_schema_w_external_docs_should_generate():
     assert schema["externalDocs"] == external_docs.dict()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason="Requires Python 3.10+ for union syntax")
 async def test_optional_types_are_generated_correctly(app: NatsAPI):
     class User(BaseModel):
         name: str
         mandatory_property_1: str
         optional_property_1: str | None
-        optional_property_2: str | None
-        optional_property_3: str | None = None
-        optional_property_4: str | None | None = None
+        optional_property_2: Optional[str]  # noqa
+        optional_property_3: Optional[str] = None  # noqa
+        optional_property_4: Optional[str] | None = None  # noqa
         optional_property_5: str | None = None
         optional_property_6: str = None
         optional_property_7: str | int
+        optional_property_8: Union[str, None]
 
     user_router = SubjectRouter(prefix="v1", tags=["users"], deprecated=True)
 
