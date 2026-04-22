@@ -54,7 +54,7 @@ target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = ["C90", "I", "B", "Q", "UP", "S", "COM", "C4", "T10", "SIM", "TID", "PTH", "ERA"]
-ignore = ["S101", "UP038", "B017", "UP007", "UP008", "B006", "C408"]
+ignore = ["S101", "B017", "UP007", "UP008", "B006", "C408"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 25

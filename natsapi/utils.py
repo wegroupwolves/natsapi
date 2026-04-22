@@ -3,7 +3,7 @@ import inspect
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from pydantic import BaseConfig, BaseModel, create_model
 from pydantic.fields import FieldInfo
@@ -30,9 +30,9 @@ def generate_operation_id_for_subject(*, summary: str, subject: str) -> str:
 def create_field(
     name: str,
     type_: type[Any],
-    class_validators: Optional[dict[str, Any]] = None,
+    class_validators: dict[str, Any] | None = None,
     model_config: type[BaseConfig] = BaseConfig,
-    field_info: Optional[FieldInfo] = None,
+    field_info: FieldInfo | None = None,
 ) -> ModelField:
     """
     Yanked from fastapi.utils

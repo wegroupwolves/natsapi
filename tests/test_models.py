@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import uuid4
 
 import pytest
@@ -11,7 +10,7 @@ from natsapi.models import JsonRPCError, JsonRPCReply, JsonRPCRequest
 def test_change_param_type_of_model_should_change():
     class Params(BaseModel):
         foo: int = Field(...)
-        bar: Optional[str] = Field(None)
+        bar: str | None = Field(None)
 
     new_model = JsonRPCRequest.with_params(Params)
 
