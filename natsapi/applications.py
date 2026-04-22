@@ -72,7 +72,7 @@ class NatsAPI:
             self.loop = asyncio.get_running_loop()
             self._sharing_loop = True
         except RuntimeError:
-            self.loop = asyncio.get_event_loop()
+            self.loop = asyncio.new_event_loop()
             self._sharing_loop = False
 
         if app is not None:
