@@ -3,7 +3,7 @@ import inspect
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, Union
+from typing import Any, Literal, Union
 
 from pydantic import BaseConfig, BaseModel, create_model
 from pydantic.fields import FieldInfo
@@ -33,10 +33,15 @@ def create_field(
     class_validators: dict[str, Any] | None = None,
     model_config: type[BaseConfig] = BaseConfig,
     field_info: FieldInfo | None = None,
+    mode: Literal["validation", "serialization"] = "validation",
 ) -> ModelField:
     """
     Yanked from fastapi.utils
     Create a new reply field. Raises if type_ is invalid.
+
+    `mode` controls which pydantic JSON schema view is generated for this field:
+    "validation" for incoming payloads, "serialization" for outgoing payloads
+    (required for `@computed_field` to appear - Pydantic V2 only).
     """
     class_validators = class_validators or {}
 
@@ -44,7 +49,9 @@ def create_field(
 
     kwargs = {"name": name, "field_info": field_info}
 
-    if not PYDANTIC_V2:
+    if PYDANTIC_V2:
+        kwargs["mode"] = mode
+    else:
         kwargs.update(
             {
                 "type_": type_,
