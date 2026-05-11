@@ -5,9 +5,13 @@ import pytest
 from pydantic import BaseModel, Field
 
 from natsapi import NatsAPI, Pub, SubjectRouter
+from natsapi._compat import PYDANTIC_V2
 from natsapi.asyncapi import Errors
 from natsapi.asyncapi.models import ExternalDocumentation, Server
 from natsapi.exceptions import JsonRPCException
+
+if PYDANTIC_V2:
+    from pydantic import computed_field
 
 pytestmark = pytest.mark.asyncio
 
@@ -411,3 +415,49 @@ async def test_pub_and_req_should_render_properly(app: NatsAPI):
     schema = (await app.nc.request("natsapi.development.schema.RETRIEVE", {})).result
     assert schema["channels"]["natsapi.development.req"]["request"]["summary"] == "Req"
     assert schema["channels"]["natsapi.development.pub"]["publish"]["summary"] == "Pub"
+
+
+@pytest.mark.skipif(not PYDANTIC_V2, reason="@computed_field and serialization-mode schemas are Pydantic v2 only")
+def test_computed_field_in_result_should_appear_in_response_schema():
+
+    class User(BaseModel):
+        first_name: str
+        last_name: str
+
+        @computed_field
+        @property
+        def full_name(self) -> str:
+            return f"{self.first_name} {self.last_name}"
+
+    class CreateUserParams(BaseModel):
+        first_name: str
+        last_name: str
+
+        @computed_field
+        @property
+        def full_name(self) -> str:
+            return f"{self.first_name} {self.last_name}"
+
+    app = NatsAPI("natsapi.development")
+    router = SubjectRouter(prefix="v1")
+
+    @router.request("users.GET", result=User)
+    def get_user(app, params: CreateUserParams):
+        return {}
+
+    @router.publish("users.CREATED")
+    def user_created(app, user: User):
+        return {}
+
+    app.include_router(router)
+    app.generate_asyncapi()
+    schema = app.asyncapi_schema
+
+    user_schema = schema["components"]["schemas"]["User"]
+    assert "full_name" in user_schema["properties"]
+    assert user_schema["properties"]["full_name"]["readOnly"] is True
+    assert "full_name" in user_schema["required"]
+
+    # the request model does not include the calculated property
+    params_schema = schema["components"]["schemas"]["CreateUserParams"]
+    assert set(params_schema["properties"].keys()) == {"first_name", "last_name"}
